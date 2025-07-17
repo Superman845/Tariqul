@@ -1751,7 +1751,7 @@
             Object.keys(currentLevelLessons).forEach(lessonKey => {
                 const card = document.createElement('div');
                 card.className = 'lesson-card';
-                if (parseInt(lessonKey) === currentLesson) {
+                if (lessonKey === currentLesson || parseInt(lessonKey) === currentLesson) {
                     card.classList.add('active');
                 }
                 if (lessonKey === selectedLesson) {
@@ -1774,7 +1774,7 @@
                     
                     // Double-click to load lesson
                     if (e.detail === 2) {
-                        currentLesson = parseInt(lessonKey);
+                        currentLesson = lessonKey; // Keep as string for Y.T Course compatibility
                         loadLesson();
                         closeLessonsModal();
                     } else {
@@ -1932,7 +1932,7 @@
                 localStorage.setItem('customLessons', JSON.stringify(lessons));
                 
                 // If current lesson was deleted, switch to lesson 1
-                if (currentLesson === parseInt(selectedLesson)) {
+                if (currentLesson === selectedLesson || currentLesson === parseInt(selectedLesson)) {
                     currentLesson = 1;
                     loadLesson();
                 }
@@ -1979,10 +1979,16 @@
         function nextLesson() {
             const lessons = JSON.parse(localStorage.getItem('customLessons')) || defaultLessons;
             const currentLevelLessons = lessons[currentLevel] || {};
-            const maxLesson = Math.max(...Object.keys(currentLevelLessons).map(Number));
+            const lessonKeys = Object.keys(currentLevelLessons);
             
-            if (currentLesson < maxLesson) {
-                currentLesson++;
+            // Find current lesson index
+            let currentIndex = lessonKeys.indexOf(currentLesson.toString());
+            if (currentIndex === -1) {
+                currentIndex = lessonKeys.indexOf(currentLesson);
+            }
+            
+            if (currentIndex < lessonKeys.length - 1) {
+                currentLesson = lessonKeys[currentIndex + 1];
                 loadLesson();
             } else {
                 alert('You have completed all lessons in this level!');
