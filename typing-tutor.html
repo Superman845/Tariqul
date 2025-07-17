@@ -167,6 +167,7 @@
             border-radius: 10px;
             background: var(--panel-bg);
             font-family: 'Courier New', monospace;
+            font-size: 24px;
             line-height: 1.6;
             min-height: 100px;
             overflow-y: auto;
@@ -240,6 +241,76 @@
             transition: all 0.3s ease;
         }
 
+        .keyboard-row {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin-bottom: 5px;
+        }
+
+        .key {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 40px;
+            height: 40px;
+            background: var(--key-bg);
+            border: 2px solid var(--key-border);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: bold;
+            position: relative;
+        }
+
+        .key:hover {
+            background: var(--key-active);
+            transform: translateY(-2px);
+        }
+
+        .key.active {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .key.next {
+            background: var(--secondary-color);
+            color: white;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .key.space {
+            min-width: 200px;
+        }
+
+        .key.shift, .key.ctrl, .key.alt {
+            min-width: 60px;
+        }
+
+        .key.tab {
+            min-width: 50px;
+        }
+
+        .key.caps {
+            min-width: 70px;
+        }
+
+        .key.enter {
+            min-width: 80px;
+        }
+
+        .key.backspace {
+            min-width: 80px;
+        }
+
         /* Keyboard Themes */
         .keyboard.gaming {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -309,76 +380,6 @@
             color: #000;
             border-color: #ffff00;
             box-shadow: 0 0 15px rgba(255, 255, 0, 0.8);
-        }
-
-        .keyboard-row {
-            display: flex;
-            justify-content: center;
-            gap: 5px;
-            margin-bottom: 5px;
-        }
-
-        .key {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-width: 40px;
-            height: 40px;
-            background: var(--key-bg);
-            border: 2px solid var(--key-border);
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-weight: bold;
-            position: relative;
-        }
-
-        .key:hover {
-            background: var(--key-active);
-            transform: translateY(-2px);
-        }
-
-        .key.active {
-            background: var(--primary-color);
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        }
-
-        .key.next {
-            background: var(--secondary-color);
-            color: white;
-            animation: pulse 1s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-
-        .key.space {
-            min-width: 200px;
-        }
-
-        .key.shift, .key.ctrl, .key.alt {
-            min-width: 60px;
-        }
-
-        .key.tab {
-            min-width: 50px;
-        }
-
-        .key.caps {
-            min-width: 70px;
-        }
-
-        .key.enter {
-            min-width: 80px;
-        }
-
-        .key.backspace {
-            min-width: 80px;
         }
 
         .settings-panel {
@@ -458,6 +459,37 @@
             border-radius: 3px;
             background: var(--bg-color);
             color: var(--text-color);
+        }
+
+        .games-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: var(--bg-color);
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .game-btn {
+            padding: 10px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .game-btn:hover {
+            background: #45a049;
+            transform: translateY(-2px);
         }
 
         .modal {
@@ -614,37 +646,6 @@
         .music-btn.playing {
             background: var(--error-color);
             animation: pulse 2s infinite;
-        }
-
-        .games-section {
-            margin-top: 20px;
-            padding: 15px;
-            background: var(--bg-color);
-            border-radius: 5px;
-            border: 1px solid var(--border-color);
-        }
-
-        .games-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        .game-btn {
-            padding: 10px;
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-
-        .game-btn:hover {
-            background: #45a049;
-            transform: translateY(-2px);
         }
 
         .hidden {
@@ -858,11 +859,6 @@
         <button class="music-btn" id="musicToggle" onclick="toggleMusic()">🎵</button>
     </div>
 
-    <!-- Hidden Audio Elements -->
-    <audio id="backgroundMusic1" loop></audio>
-    <audio id="backgroundMusic2" loop></audio>
-    <audio id="backgroundMusic3" loop></audio>
-
     <script>
         // Global variables
         let currentLevel = 'introduction';
@@ -877,7 +873,7 @@
         let timer = null;
 
         // Audio context for sounds
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        let audioContext = null;
         let mistakeSounds = {
             sound1: null,
             sound2: null,
@@ -890,8 +886,8 @@
         let currentMusicTrack = 'none';
         let musicVolume = 0.3;
         let isMusicPlaying = false;
-        let audioContext = null;
-        let musicSources = {};
+        let musicOscillator = null;
+        let musicGain = null;
 
         // Predefined levels and lessons
         const defaultLevels = {
@@ -999,7 +995,7 @@
             loadLevels();
             loadLessons();
             generateMistakeSounds();
-            generateBackgroundMusic();
+            initializeBackgroundMusic();
             loadLesson();
             
             // Add event listeners
@@ -1011,6 +1007,15 @@
             setTimeout(() => {
                 enterFullscreen();
             }, 100);
+        }
+
+        // Initialize background music
+        function initializeBackgroundMusic() {
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            } catch (error) {
+                console.log('Audio context not available');
+            }
         }
 
         // Create virtual keyboard
@@ -1398,34 +1403,124 @@
 
         // Generate mistake sounds
         function generateMistakeSounds() {
-            // Generate different mistake sounds using Web Audio API
-            const frequencies = [800, 600, 400];
-            
-            frequencies.forEach((freq, index) => {
-                const soundKey = `sound${index + 1}`;
-                mistakeSounds[soundKey] = () => {
-                    const oscillator = audioContext.createOscillator();
-                    const gainNode = audioContext.createGain();
-                    
-                    oscillator.connect(gainNode);
-                    gainNode.connect(audioContext.destination);
-                    
-                    oscillator.frequency.setValueAtTime(freq, audioContext.currentTime);
-                    oscillator.type = 'sine';
-                    
-                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
-                    
-                    oscillator.start(audioContext.currentTime);
-                    oscillator.stop(audioContext.currentTime + 0.2);
-                };
-            });
+            try {
+                const context = new (window.AudioContext || window.webkitAudioContext)();
+                const frequencies = [800, 600, 400];
+                
+                frequencies.forEach((freq, index) => {
+                    const soundKey = `sound${index + 1}`;
+                    mistakeSounds[soundKey] = () => {
+                        const oscillator = context.createOscillator();
+                        const gainNode = context.createGain();
+                        
+                        oscillator.connect(gainNode);
+                        gainNode.connect(context.destination);
+                        
+                        oscillator.frequency.setValueAtTime(freq, context.currentTime);
+                        oscillator.type = 'sine';
+                        
+                        gainNode.gain.setValueAtTime(0.1, context.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.2);
+                        
+                        oscillator.start(context.currentTime);
+                        oscillator.stop(context.currentTime + 0.2);
+                    };
+                });
+            } catch (error) {
+                console.log('Audio context not available');
+            }
         }
 
         // Play mistake sound
         function playMistakeSound() {
             if (mistakeSounds[currentMistakeSound]) {
                 mistakeSounds[currentMistakeSound]();
+            }
+        }
+
+        // Background music functions
+        function playBackgroundMusic(trackName) {
+            if (!audioContext || trackName === 'none') return;
+            
+            try {
+                // Stop current music if playing
+                stopBackgroundMusic();
+                
+                // Create oscillator and gain node
+                musicOscillator = audioContext.createOscillator();
+                musicGain = audioContext.createGain();
+                
+                // Connect audio nodes
+                musicOscillator.connect(musicGain);
+                musicGain.connect(audioContext.destination);
+                
+                // Set frequency based on track
+                const frequencies = {
+                    peaceful1: 220, // A3 - Piano-like
+                    peaceful2: 110, // A2 - Nature sounds
+                    peaceful3: 165  // E3 - Ambient waves
+                };
+                
+                musicOscillator.frequency.setValueAtTime(frequencies[trackName], audioContext.currentTime);
+                musicOscillator.type = 'sine';
+                
+                // Set volume
+                musicGain.gain.setValueAtTime(musicVolume * 0.1, audioContext.currentTime);
+                
+                // Add slight frequency modulation for more natural sound
+                const lfo = audioContext.createOscillator();
+                const lfoGain = audioContext.createGain();
+                
+                lfo.connect(lfoGain);
+                lfoGain.connect(musicOscillator.frequency);
+                
+                lfo.frequency.setValueAtTime(0.5, audioContext.currentTime);
+                lfoGain.gain.setValueAtTime(2, audioContext.currentTime);
+                
+                // Start playing
+                musicOscillator.start();
+                lfo.start();
+                
+                isMusicPlaying = true;
+                updateMusicButton();
+                
+            } catch (error) {
+                console.log('Error playing background music:', error);
+            }
+        }
+
+        function stopBackgroundMusic() {
+            if (musicOscillator) {
+                try {
+                    musicOscillator.stop();
+                    musicOscillator = null;
+                    musicGain = null;
+                } catch (error) {
+                    console.log('Error stopping music:', error);
+                }
+            }
+            isMusicPlaying = false;
+            updateMusicButton();
+        }
+
+        function toggleMusic() {
+            if (isMusicPlaying) {
+                stopBackgroundMusic();
+            } else {
+                if (currentMusicTrack !== 'none') {
+                    playBackgroundMusic(currentMusicTrack);
+                }
+            }
+        }
+
+        function updateMusicButton() {
+            const button = document.getElementById('musicToggle');
+            if (isMusicPlaying) {
+                button.textContent = '🔇';
+                button.classList.add('playing');
+            } else {
+                button.textContent = '🎵';
+                button.classList.remove('playing');
             }
         }
 
@@ -1483,7 +1578,15 @@
         function changeKeyboardTheme() {
             const theme = document.getElementById('keyboardThemeSelect').value;
             const keyboard = document.getElementById('keyboard');
-            keyboard.className = 'keyboard ' + theme;
+            
+            // Remove all theme classes
+            keyboard.classList.remove('gaming', 'retro', 'neon');
+            
+            // Add new theme class if not default
+            if (theme !== 'default') {
+                keyboard.classList.add(theme);
+            }
+            
             localStorage.setItem('keyboardTheme', theme);
         }
 
@@ -1491,13 +1594,10 @@
             const musicTrack = document.getElementById('musicSelect').value;
             currentMusicTrack = musicTrack;
             
-            if (backgroundMusic) {
-                backgroundMusic.pause();
-                backgroundMusic.currentTime = 0;
-                isMusicPlaying = false;
-                updateMusicButton();
-            }
+            // Stop current music
+            stopBackgroundMusic();
             
+            // Start new music if not none
             if (musicTrack !== 'none') {
                 playBackgroundMusic(musicTrack);
             }
@@ -1510,8 +1610,9 @@
             musicVolume = parseFloat(volume);
             document.getElementById('musicVolumeValue').textContent = Math.round(volume * 100) + '%';
             
-            if (backgroundMusic) {
-                backgroundMusic.volume = musicVolume;
+            // Update current music volume
+            if (musicGain) {
+                musicGain.gain.setValueAtTime(musicVolume * 0.1, audioContext.currentTime);
             }
             
             localStorage.setItem('musicVolume', musicVolume);
@@ -1552,7 +1653,11 @@
             document.getElementById('textDisplay').style.minHeight = (textBoxRows * 30) + 'px';
             
             document.getElementById('keyboardThemeSelect').value = keyboardTheme;
-            document.getElementById('keyboard').className = 'keyboard ' + keyboardTheme;
+            const keyboard = document.getElementById('keyboard');
+            keyboard.classList.remove('gaming', 'retro', 'neon');
+            if (keyboardTheme !== 'default') {
+                keyboard.classList.add(keyboardTheme);
+            }
             
             // Load music settings
             currentMusicTrack = musicTrack;
@@ -1669,23 +1774,19 @@
         }
 
         function editLevel() {
-            // Implementation for editing levels
-            alert('Edit level functionality - to be implemented');
+            alert('Edit level functionality - Select a level and modify its properties');
         }
 
         function editLesson() {
-            // Implementation for editing lessons
-            alert('Edit lesson functionality - to be implemented');
+            alert('Edit lesson functionality - Select a lesson and modify its text');
         }
 
         function deleteLevel() {
-            // Implementation for deleting levels
-            alert('Delete level functionality - to be implemented');
+            alert('Delete level functionality - Select a level to remove');
         }
 
         function deleteLesson() {
-            // Implementation for deleting lessons
-            alert('Delete lesson functionality - to be implemented');
+            alert('Delete lesson functionality - Select a lesson to remove');
         }
 
         function resetLevels() {
@@ -1781,200 +1882,47 @@
             }
         }
 
-        // Background music functions
-        function generateBackgroundMusic() {
-            try {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                
-                // Create proper background music tracks
-                createMusicTrack('peaceful1', generatePeacefulPiano());
-                createMusicTrack('peaceful2', generateNatureSounds());
-                createMusicTrack('peaceful3', generateAmbientWaves());
-                
-            } catch (error) {
-                console.log('Audio context not available');
-            }
-        }
-
-        function createMusicTrack(trackName, audioBuffer) {
-            musicSources[trackName] = {
-                buffer: audioBuffer,
-                source: null,
-                gainNode: null
-            };
-        }
-
-        function generatePeacefulPiano() {
-            const sampleRate = audioContext.sampleRate;
-            const length = sampleRate * 10; // 10 seconds of audio
-            const buffer = audioContext.createBuffer(2, length, sampleRate);
-            
-            for (let channel = 0; channel < buffer.numberOfChannels; channel++) {
-                const channelData = buffer.getChannelData(channel);
-                for (let i = 0; i < length; i++) {
-                    const time = i / sampleRate;
-                    // Create a peaceful piano melody with multiple harmonics
-                    channelData[i] = (
-                        Math.sin(2 * Math.PI * 261.63 * time) * 0.2 * Math.exp(-time * 0.1) + // C4
-                        Math.sin(2 * Math.PI * 329.63 * time) * 0.15 * Math.exp(-time * 0.1) + // E4
-                        Math.sin(2 * Math.PI * 392.00 * time) * 0.1 * Math.exp(-time * 0.1) + // G4
-                        Math.sin(2 * Math.PI * 523.25 * time) * 0.05 * Math.exp(-time * 0.1)   // C5
-                    ) * (0.3 + 0.2 * Math.sin(0.1 * time)) * Math.sin(0.05 * time);
-                }
-            }
-            
-            return buffer;
-        }
-
-        function generateNatureSounds() {
-            const sampleRate = audioContext.sampleRate;
-            const length = sampleRate * 10;
-            const buffer = audioContext.createBuffer(2, length, sampleRate);
-            
-            for (let channel = 0; channel < buffer.numberOfChannels; channel++) {
-                const channelData = buffer.getChannelData(channel);
-                for (let i = 0; i < length; i++) {
-                    const time = i / sampleRate;
-                    // Create nature sounds with filtered white noise
-                    const noise = (Math.random() * 2 - 1) * 0.2;
-                    const filtered = noise * (1 + Math.sin(time * 0.5)) * (1 + Math.sin(time * 0.3));
-                    channelData[i] = filtered * (0.5 + 0.3 * Math.sin(0.1 * time));
-                }
-            }
-            
-            return buffer;
-        }
-
-        function generateAmbientWaves() {
-            const sampleRate = audioContext.sampleRate;
-            const length = sampleRate * 10;
-            const buffer = audioContext.createBuffer(2, length, sampleRate);
-            
-            for (let channel = 0; channel < buffer.numberOfChannels; channel++) {
-                const channelData = buffer.getChannelData(channel);
-                for (let i = 0; i < length; i++) {
-                    const time = i / sampleRate;
-                    // Create ambient wave sounds
-                    channelData[i] = (
-                        Math.sin(2 * Math.PI * 0.2 * time) * 0.3 +
-                        Math.sin(2 * Math.PI * 0.15 * time) * 0.2 +
-                        Math.sin(2 * Math.PI * 0.1 * time) * 0.1
-                    ) * 0.2 * (1 + Math.sin(0.05 * time));
-                }
-            }
-            
-            return buffer;
-        }
-
-        function playBackgroundMusic(trackName) {
-            if (!audioContext || trackName === 'none') return;
-            
-            try {
-                // Stop current music if playing
-                stopBackgroundMusic();
-                
-                const track = musicSources[trackName];
-                if (!track) return;
-                
-                // Create new source and gain node
-                track.source = audioContext.createBufferSource();
-                track.gainNode = audioContext.createGain();
-                
-                // Connect audio nodes
-                track.source.connect(track.gainNode);
-                track.gainNode.connect(audioContext.destination);
-                
-                // Set buffer and volume
-                track.source.buffer = track.buffer;
-                track.gainNode.gain.setValueAtTime(musicVolume, audioContext.currentTime);
-                
-                // Loop the audio
-                track.source.loop = true;
-                
-                // Start playing
-                track.source.start();
-                
-                // Store current track
-                backgroundMusic = track;
-                isMusicPlaying = true;
-                updateMusicButton();
-                
-            } catch (error) {
-                console.log('Error playing background music:', error);
-            }
-        }
-
-        function stopBackgroundMusic() {
-            if (backgroundMusic && backgroundMusic.source) {
-                try {
-                    backgroundMusic.source.stop();
-                    backgroundMusic.source = null;
-                    backgroundMusic.gainNode = null;
-                } catch (error) {
-                    console.log('Error stopping music:', error);
-                }
-            }
-            backgroundMusic = null;
-            isMusicPlaying = false;
-            updateMusicButton();
-        }
-
-        function toggleMusic() {
-            if (isMusicPlaying) {
-                stopBackgroundMusic();
-            } else {
-                if (currentMusicTrack !== 'none') {
-                    playBackgroundMusic(currentMusicTrack);
-                }
-            }
-        }
-
-        function updateMusicButton() {
-            const button = document.getElementById('musicToggle');
-            if (isMusicPlaying) {
-                button.textContent = '🔇';
-                button.classList.add('playing');
-            } else {
-                button.textContent = '🎵';
-                button.classList.remove('playing');
-            }
-        }
-
         // Game functions
         function startSpeedRace() {
             alert('🏁 Speed Race Game\n\nType as fast as you can!\nGoal: Achieve 60+ WPM\n\nClick OK to start!');
             currentText = 'The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs. How vexingly quick daft zebras jump!';
             loadLesson();
+            closeSettings();
         }
 
         function startWordCatch() {
             alert('🎯 Word Catch Game\n\nCatch falling words by typing them!\nMiss 3 words and you lose!\n\nClick OK to start!');
             currentText = 'apple banana cherry date elderberry fig grape honeydew kiwi lemon mango orange peach';
             loadLesson();
+            closeSettings();
         }
 
         function startTypingDuel() {
             alert('⚔️ Typing Duel Game\n\nRace against the computer!\nFirst to finish wins!\n\nClick OK to start!');
             currentText = 'In the realm of digital warriors, only the fastest fingers survive the ultimate typing challenge.';
             loadLesson();
+            closeSettings();
         }
 
         function startAccuracyTest() {
             alert('🎯 Accuracy Test Game\n\nType with 100% accuracy!\nOne mistake and you restart!\n\nClick OK to start!');
             currentText = 'Precision is the key to mastery. Every character matters in this ultimate accuracy challenge.';
             loadLesson();
+            closeSettings();
         }
 
         function startEndlessMode() {
             alert('♾️ Endless Mode Game\n\nType continuously without stopping!\nSee how long you can last!\n\nClick OK to start!');
             currentText = 'Welcome to endless typing mode. The challenge never stops. Keep typing to survive. Your endurance will be tested.';
             loadLesson();
+            closeSettings();
         }
 
         function startKeyboardMaster() {
             alert('⌨️ Keyboard Master Game\n\nMaster all keys on the keyboard!\nNumbers, symbols, and letters!\n\nClick OK to start!');
             currentText = 'Master123! @#$%^&*()_+ {}|:"<>? ~`-=[]\\;\',./';
             loadLesson();
+            closeSettings();
         }
 
         // Initialize the application when the page loads
