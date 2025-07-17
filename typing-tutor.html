@@ -1,0 +1,1539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typing Practice Tutor</title>
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #000000;
+            --primary-color: #4CAF50;
+            --secondary-color: #2196F3;
+            --error-color: #f44336;
+            --success-color: #4CAF50;
+            --key-bg: #f0f0f0;
+            --key-border: #ccc;
+            --key-active: #e0e0e0;
+            --panel-bg: #f9f9f9;
+            --border-color: #ddd;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1a1a1a;
+            --text-color: #ffffff;
+            --key-bg: #333333;
+            --key-border: #555555;
+            --key-active: #444444;
+            --panel-bg: #2a2a2a;
+            --border-color: #555555;
+        }
+
+        [data-theme="night"] {
+            --bg-color: #0d1117;
+            --text-color: #c9d1d9;
+            --key-bg: #21262d;
+            --key-border: #30363d;
+            --key-active: #373e47;
+            --panel-bg: #161b22;
+            --border-color: #30363d;
+        }
+
+        [data-theme="blue"] {
+            --bg-color: #e3f2fd;
+            --text-color: #0d47a1;
+            --key-bg: #bbdefb;
+            --key-border: #90caf9;
+            --key-active: #64b5f6;
+            --panel-bg: #f3e5f5;
+            --border-color: #90caf9;
+        }
+
+        [data-theme="green"] {
+            --bg-color: #e8f5e8;
+            --text-color: #1b5e20;
+            --key-bg: #c8e6c9;
+            --key-border: #a5d6a7;
+            --key-active: #81c784;
+            --panel-bg: #f1f8e9;
+            --border-color: #a5d6a7;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .level-selector {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .level-btn, .lesson-btn {
+            padding: 8px 16px;
+            border: 2px solid var(--border-color);
+            background: var(--key-bg);
+            color: var(--text-color);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .level-btn:hover, .lesson-btn:hover {
+            background: var(--key-active);
+            transform: translateY(-2px);
+        }
+
+        .level-btn.active, .lesson-btn.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .settings-btn {
+            padding: 10px 20px;
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .settings-btn:hover {
+            background: #1976D2;
+            transform: translateY(-2px);
+        }
+
+        .stats-display {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: var(--panel-bg);
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+
+        .typing-area {
+            margin-bottom: 20px;
+        }
+
+        .text-display {
+            padding: 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            background: var(--panel-bg);
+            font-family: 'Courier New', monospace;
+            line-height: 1.6;
+            min-height: 100px;
+            overflow-y: auto;
+            resize: vertical;
+        }
+
+        .char {
+            font-size: inherit;
+            transition: all 0.2s ease;
+        }
+
+        .char.correct {
+            color: var(--success-color);
+            background-color: rgba(76, 175, 80, 0.1);
+        }
+
+        .char.incorrect {
+            color: var(--error-color);
+            background-color: rgba(244, 67, 54, 0.1);
+        }
+
+        .char.current {
+            background-color: var(--secondary-color);
+            color: white;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+
+        .finger-hint {
+            margin: 10px 0;
+            padding: 10px;
+            background: var(--panel-bg);
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .lesson-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .control-btn {
+            padding: 10px 20px;
+            border: 2px solid var(--border-color);
+            background: var(--key-bg);
+            color: var(--text-color);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: var(--key-active);
+            transform: translateY(-2px);
+        }
+
+        .keyboard {
+            background: var(--panel-bg);
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid var(--border-color);
+            user-select: none;
+        }
+
+        .keyboard-row {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin-bottom: 5px;
+        }
+
+        .key {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 40px;
+            height: 40px;
+            background: var(--key-bg);
+            border: 2px solid var(--key-border);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: bold;
+            position: relative;
+        }
+
+        .key:hover {
+            background: var(--key-active);
+            transform: translateY(-2px);
+        }
+
+        .key.active {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .key.next {
+            background: var(--secondary-color);
+            color: white;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .key.space {
+            min-width: 200px;
+        }
+
+        .key.shift, .key.ctrl, .key.alt {
+            min-width: 60px;
+        }
+
+        .key.tab {
+            min-width: 50px;
+        }
+
+        .key.caps {
+            min-width: 70px;
+        }
+
+        .key.enter {
+            min-width: 80px;
+        }
+
+        .key.backspace {
+            min-width: 80px;
+        }
+
+        .settings-panel {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 400px;
+            height: 100vh;
+            background: var(--panel-bg);
+            border-left: 2px solid var(--border-color);
+            padding: 20px;
+            transition: right 0.3s ease;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .settings-panel.open {
+            right: 0;
+        }
+
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .close-btn {
+            background: var(--error-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .setting-group {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: var(--bg-color);
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+        }
+
+        .setting-label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .setting-input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 3px;
+            background: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        .setting-select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 3px;
+            background: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .modal.open {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--panel-bg);
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 80%;
+            max-height: 80%;
+            overflow-y: auto;
+            border: 2px solid var(--border-color);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .levels-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .level-card {
+            padding: 15px;
+            background: var(--bg-color);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .level-card:hover {
+            background: var(--key-active);
+            transform: translateY(-2px);
+        }
+
+        .level-card.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .lessons-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .lesson-card {
+            padding: 10px;
+            background: var(--bg-color);
+            border: 2px solid var(--border-color);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .lesson-card:hover {
+            background: var(--key-active);
+            transform: translateY(-2px);
+        }
+
+        .lesson-card.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .custom-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .fullscreen-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            z-index: 100;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .stats-display {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .keyboard {
+                padding: 10px;
+            }
+            
+            .key {
+                min-width: 30px;
+                height: 30px;
+                font-size: 12px;
+            }
+            
+            .settings-panel {
+                width: 100%;
+                right: -100%;
+            }
+        }
+    </style>
+</head>
+<body data-theme="light">
+    <div class="container">
+        <div class="header">
+            <div class="level-selector">
+                <button class="level-btn active" onclick="openLevelsModal()">Levels</button>
+                <button class="lesson-btn" onclick="openLessonsModal()">Lessons</button>
+                <button class="control-btn" onclick="showStats()">Stats</button>
+            </div>
+            <button class="settings-btn" onclick="toggleSettings()">⚙️ Settings</button>
+        </div>
+
+        <div class="stats-display">
+            <div class="stat-item">
+                <div class="stat-value" id="accuracy">100%</div>
+                <div class="stat-label">Accuracy</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="speed">0</div>
+                <div class="stat-label">WPM</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="errors">0</div>
+                <div class="stat-label">Errors</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="time">0:00</div>
+                <div class="stat-label">Time</div>
+            </div>
+        </div>
+
+        <div class="typing-area">
+            <div class="text-display" id="textDisplay"></div>
+            <div class="finger-hint" id="fingerHint">Position your fingers on the home row</div>
+        </div>
+
+        <div class="lesson-controls">
+            <button class="control-btn" onclick="restartLesson()">🔄 Restart</button>
+            <button class="control-btn" onclick="nextLesson()">⏭️ Next Lesson</button>
+        </div>
+
+        <div class="keyboard" id="keyboard"></div>
+    </div>
+
+    <!-- Settings Panel -->
+    <div class="settings-panel" id="settingsPanel">
+        <div class="settings-header">
+            <h3>Settings</h3>
+            <button class="close-btn" onclick="toggleSettings()">×</button>
+        </div>
+
+        <div class="setting-group">
+            <label class="setting-label">Theme</label>
+            <select class="setting-select" id="themeSelect" onchange="changeTheme()">
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+                <option value="night">Night</option>
+                <option value="blue">Blue</option>
+                <option value="green">Green</option>
+            </select>
+        </div>
+
+        <div class="setting-group">
+            <label class="setting-label">Font Size</label>
+            <input type="range" class="setting-input" id="fontSizeSlider" min="12" max="24" value="16" oninput="changeFontSize()">
+            <span id="fontSizeValue">16px</span>
+        </div>
+
+        <div class="setting-group">
+            <label class="setting-label">Zoom Level</label>
+            <input type="range" class="setting-input" id="zoomSlider" min="50" max="200" value="100" oninput="changeZoom()">
+            <span id="zoomValue">100%</span>
+        </div>
+
+        <div class="setting-group">
+            <label class="setting-label">Keyboard Size</label>
+            <input type="range" class="setting-input" id="keyboardSizeSlider" min="0.5" max="2" step="0.1" value="1" oninput="changeKeyboardSize()">
+            <span id="keyboardSizeValue">100%</span>
+        </div>
+
+        <div class="setting-group">
+            <label class="setting-label">Mistake Sound</label>
+            <select class="setting-select" id="soundSelect" onchange="changeMistakeSound()">
+                <option value="sound1">Sound 1</option>
+                <option value="sound2">Sound 2</option>
+                <option value="sound3">Sound 3</option>
+            </select>
+        </div>
+
+        <div class="setting-group">
+            <label class="setting-label">Text Box Rows</label>
+            <input type="range" class="setting-input" id="textBoxRowsSlider" min="1" max="5" value="3" oninput="changeTextBoxRows()">
+            <span id="textBoxRowsValue">3 rows</span>
+        </div>
+
+        <div class="setting-group">
+            <label class="setting-label">Keyboard Theme</label>
+            <select class="setting-select" id="keyboardThemeSelect" onchange="changeKeyboardTheme()">
+                <option value="default">Default</option>
+                <option value="gaming">Gaming</option>
+                <option value="retro">Retro</option>
+                <option value="neon">Neon</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Levels Modal -->
+    <div class="modal" id="levelsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Select Level</h3>
+                <button class="close-btn" onclick="closeLevelsModal()">×</button>
+            </div>
+            <div class="custom-controls">
+                <button class="control-btn" onclick="addCustomLevel()">Add Level</button>
+                <button class="control-btn" onclick="editLevel()">Edit</button>
+                <button class="control-btn" onclick="deleteLevel()">Delete</button>
+                <button class="control-btn" onclick="resetLevels()">Reset</button>
+            </div>
+            <div class="levels-grid" id="levelsGrid"></div>
+        </div>
+    </div>
+
+    <!-- Lessons Modal -->
+    <div class="modal" id="lessonsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Select Lesson</h3>
+                <button class="close-btn" onclick="closeLessonsModal()">×</button>
+            </div>
+            <div class="custom-controls">
+                <button class="control-btn" onclick="addCustomLesson()">Add Lesson</button>
+                <button class="control-btn" onclick="editLesson()">Edit</button>
+                <button class="control-btn" onclick="deleteLesson()">Delete</button>
+                <button class="control-btn" onclick="resetLessons()">Reset</button>
+            </div>
+            <div class="lessons-grid" id="lessonsGrid"></div>
+        </div>
+    </div>
+
+    <!-- Fullscreen Button -->
+    <button class="fullscreen-btn" onclick="toggleFullscreen()">⛶</button>
+
+    <script>
+        // Global variables
+        let currentLevel = 'introduction';
+        let currentLesson = 1;
+        let currentText = '';
+        let currentIndex = 0;
+        let startTime = null;
+        let errors = 0;
+        let correctChars = 0;
+        let totalChars = 0;
+        let isShiftPressed = false;
+        let timer = null;
+
+        // Audio context for sounds
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        let mistakeSounds = {
+            sound1: null,
+            sound2: null,
+            sound3: null
+        };
+        let currentMistakeSound = 'sound1';
+
+        // Predefined levels and lessons
+        const defaultLevels = {
+            introduction: {
+                name: 'Introduction',
+                description: 'Learn the basics of touch typing'
+            },
+            beginner: {
+                name: 'Beginner',
+                description: 'Start with home row keys'
+            },
+            intermediate: {
+                name: 'Intermediate',
+                description: 'Expand to all letters'
+            },
+            advanced: {
+                name: 'Advanced',
+                description: 'Numbers and special characters'
+            },
+            practice: {
+                name: 'Practice',
+                description: 'Real-world typing practice'
+            }
+        };
+
+        const defaultLessons = {
+            introduction: {
+                1: 'fff jjj fff jjj fff jjj',
+                2: 'ddd kkk ddd kkk ddd kkk',
+                3: 'sss lll sss lll sss lll',
+                4: 'aaa ;;; aaa ;;; aaa ;;;',
+                5: 'fjdk fjdk fjdk fjdk',
+                6: 'asdf jkl; asdf jkl;',
+                7: 'the quick brown fox',
+                8: 'jumps over the lazy dog',
+                9: 'hello world typing test',
+                10: 'practice makes perfect'
+            },
+            beginner: {
+                1: 'ggg hhh ggg hhh ggg hhh',
+                2: 'rrr uuu rrr uuu rrr uuu',
+                3: 'eee iii eee iii eee iii',
+                4: 'www ooo www ooo www ooo',
+                5: 'qqq ppp qqq ppp qqq ppp',
+                6: 'right hand left hand',
+                7: 'finger position matters',
+                8: 'keep your wrists straight',
+                9: 'look at the screen not keys',
+                10: 'rhythm and consistency'
+            },
+            intermediate: {
+                1: 'ttt yyy ttt yyy ttt yyy',
+                2: 'vvv nnn vvv nnn vvv nnn',
+                3: 'ccc mmm ccc mmm ccc mmm',
+                4: 'xxx ,,, xxx ,,, xxx ,,,',
+                5: 'zzz ... zzz ... zzz ...',
+                6: 'typing with all fingers',
+                7: 'smooth and steady wins',
+                8: 'accuracy over speed',
+                9: 'build muscle memory',
+                10: 'consistent practice daily'
+            },
+            advanced: {
+                1: '111 222 333 444 555',
+                2: '666 777 888 999 000',
+                3: '!@# $%^ &*( )_+ {}|',
+                4: 'The Quick Brown Fox',
+                5: 'JUMPS OVER THE LAZY DOG',
+                6: 'Numbers: 1234567890',
+                7: 'Symbols: !@#$%^&*()',
+                8: 'Mixed: Hello123 World!',
+                9: 'Email: user@example.com',
+                10: 'Code: function() { return true; }'
+            },
+            practice: {
+                1: 'The art of typing is a skill that requires patience and practice.',
+                2: 'Touch typing allows you to type without looking at the keyboard.',
+                3: 'Proper finger placement on the home row is essential for speed.',
+                4: 'Regular practice sessions will improve your typing accuracy.',
+                5: 'Maintaining good posture while typing prevents strain and injury.',
+                6: 'The quick brown fox jumps over the lazy dog near the riverbank.',
+                7: 'Programming requires fast and accurate typing skills for efficiency.',
+                8: 'Email communication in the modern workplace demands good typing.',
+                9: 'Students who can type well have an advantage in digital learning.',
+                10: 'Typing speed of 40+ WPM is considered proficient for most jobs.'
+            }
+        };
+
+        // Finger mapping for hints
+        const fingerMap = {
+            'q': 'left pinky', 'w': 'left ring', 'e': 'left middle', 'r': 'left index', 't': 'left index',
+            'y': 'right index', 'u': 'right index', 'i': 'right middle', 'o': 'right ring', 'p': 'right pinky',
+            'a': 'left pinky', 's': 'left ring', 'd': 'left middle', 'f': 'left index', 'g': 'left index',
+            'h': 'right index', 'j': 'right index', 'k': 'right middle', 'l': 'right ring', ';': 'right pinky',
+            'z': 'left pinky', 'x': 'left ring', 'c': 'left middle', 'v': 'left index', 'b': 'left index',
+            'n': 'right index', 'm': 'right index', ',': 'right middle', '.': 'right ring', '/': 'right pinky',
+            ' ': 'thumbs', '1': 'left pinky', '2': 'left ring', '3': 'left middle', '4': 'left index', '5': 'left index',
+            '6': 'right index', '7': 'right index', '8': 'right middle', '9': 'right ring', '0': 'right pinky'
+        };
+
+        // Initialize the application
+        function init() {
+            loadSettings();
+            createKeyboard();
+            loadLevels();
+            loadLessons();
+            generateMistakeSounds();
+            loadLesson();
+            
+            // Add event listeners
+            document.addEventListener('keydown', handleKeyDown);
+            document.addEventListener('keyup', handleKeyUp);
+            document.addEventListener('click', handleBodyClick);
+            
+            // Request fullscreen on load
+            setTimeout(() => {
+                enterFullscreen();
+            }, 100);
+        }
+
+        // Create virtual keyboard
+        function createKeyboard() {
+            const keyboard = document.getElementById('keyboard');
+            const rows = [
+                ['`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', 'backspace'],
+                ['tab', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\\'],
+                ['caps', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', "'", 'enter'],
+                ['shift', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', 'shift'],
+                ['ctrl', 'alt', 'space', 'alt', 'ctrl']
+            ];
+
+            keyboard.innerHTML = '';
+            rows.forEach(row => {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'keyboard-row';
+                
+                row.forEach(key => {
+                    const keyDiv = document.createElement('div');
+                    keyDiv.className = `key ${key}`;
+                    keyDiv.setAttribute('data-key', key);
+                    
+                    if (key === 'space') {
+                        keyDiv.textContent = '';
+                        keyDiv.className += ' space';
+                    } else if (key === 'backspace') {
+                        keyDiv.textContent = '⌫';
+                        keyDiv.className += ' backspace';
+                    } else if (key === 'enter') {
+                        keyDiv.textContent = '↵';
+                        keyDiv.className += ' enter';
+                    } else if (key === 'shift') {
+                        keyDiv.textContent = '⇧';
+                        keyDiv.className += ' shift';
+                    } else if (key === 'tab') {
+                        keyDiv.textContent = '⇥';
+                        keyDiv.className += ' tab';
+                    } else if (key === 'caps') {
+                        keyDiv.textContent = '⇪';
+                        keyDiv.className += ' caps';
+                    } else if (key === 'ctrl') {
+                        keyDiv.textContent = 'Ctrl';
+                        keyDiv.className += ' ctrl';
+                    } else if (key === 'alt') {
+                        keyDiv.textContent = 'Alt';
+                        keyDiv.className += ' alt';
+                    } else {
+                        keyDiv.textContent = key;
+                    }
+                    
+                    rowDiv.appendChild(keyDiv);
+                });
+                
+                keyboard.appendChild(rowDiv);
+            });
+        }
+
+        // Handle key press
+        function handleKeyDown(event) {
+            const key = event.key;
+            const keyCode = event.keyCode;
+            
+            // Handle shift key
+            if (key === 'Shift') {
+                isShiftPressed = true;
+                updateKeyboardShift();
+                return;
+            }
+            
+            // Prevent default behavior for typing keys
+            if (keyCode >= 32 && keyCode <= 126) {
+                event.preventDefault();
+            }
+            
+            // Highlight pressed key
+            highlightKey(key);
+            
+            // Process the typed character
+            processTypedCharacter(key);
+        }
+
+        function handleKeyUp(event) {
+            const key = event.key;
+            
+            if (key === 'Shift') {
+                isShiftPressed = false;
+                updateKeyboardShift();
+            }
+            
+            // Remove highlight from key
+            removeKeyHighlight(key);
+        }
+
+        // Update keyboard display for shift state
+        function updateKeyboardShift() {
+            const keys = document.querySelectorAll('.key');
+            keys.forEach(key => {
+                const keyData = key.getAttribute('data-key');
+                if (isShiftPressed) {
+                    switch(keyData) {
+                        case '1': key.textContent = '!'; break;
+                        case '2': key.textContent = '@'; break;
+                        case '3': key.textContent = '#'; break;
+                        case '4': key.textContent = '$'; break;
+                        case '5': key.textContent = '%'; break;
+                        case '6': key.textContent = '^'; break;
+                        case '7': key.textContent = '&'; break;
+                        case '8': key.textContent = '*'; break;
+                        case '9': key.textContent = '('; break;
+                        case '0': key.textContent = ')'; break;
+                        case '-': key.textContent = '_'; break;
+                        case '=': key.textContent = '+'; break;
+                        case '[': key.textContent = '{'; break;
+                        case ']': key.textContent = '}'; break;
+                        case '\\': key.textContent = '|'; break;
+                        case ';': key.textContent = ':'; break;
+                        case "'": key.textContent = '"'; break;
+                        case ',': key.textContent = '<'; break;
+                        case '.': key.textContent = '>'; break;
+                        case '/': key.textContent = '?'; break;
+                        case '`': key.textContent = '~'; break;
+                        default:
+                            if (keyData.length === 1 && keyData.match(/[a-z]/)) {
+                                key.textContent = keyData.toUpperCase();
+                            }
+                    }
+                } else {
+                    // Reset to normal state
+                    if (keyData === 'space') {
+                        key.textContent = '';
+                    } else if (keyData === 'backspace') {
+                        key.textContent = '⌫';
+                    } else if (keyData === 'enter') {
+                        key.textContent = '↵';
+                    } else if (keyData === 'shift') {
+                        key.textContent = '⇧';
+                    } else if (keyData === 'tab') {
+                        key.textContent = '⇥';
+                    } else if (keyData === 'caps') {
+                        key.textContent = '⇪';
+                    } else if (keyData === 'ctrl') {
+                        key.textContent = 'Ctrl';
+                    } else if (keyData === 'alt') {
+                        key.textContent = 'Alt';
+                    } else {
+                        key.textContent = keyData;
+                    }
+                }
+            });
+        }
+
+        // Highlight key on keyboard
+        function highlightKey(key) {
+            const keyElement = document.querySelector(`[data-key="${key.toLowerCase()}"]`);
+            if (keyElement) {
+                keyElement.classList.add('active');
+            }
+            
+            // Handle special keys
+            if (key === ' ') {
+                const spaceKey = document.querySelector('[data-key="space"]');
+                if (spaceKey) spaceKey.classList.add('active');
+            }
+        }
+
+        // Remove key highlight
+        function removeKeyHighlight(key) {
+            const keyElement = document.querySelector(`[data-key="${key.toLowerCase()}"]`);
+            if (keyElement) {
+                keyElement.classList.remove('active');
+            }
+            
+            if (key === ' ') {
+                const spaceKey = document.querySelector('[data-key="space"]');
+                if (spaceKey) spaceKey.classList.remove('active');
+            }
+        }
+
+        // Process typed character
+        function processTypedCharacter(key) {
+            if (currentIndex >= currentText.length) return;
+            
+            const expectedChar = currentText[currentIndex];
+            const typedChar = key;
+            
+            // Start timer on first keypress
+            if (startTime === null) {
+                startTime = Date.now();
+                startTimer();
+            }
+            
+            const charElement = document.querySelector(`[data-index="${currentIndex}"]`);
+            
+            if (typedChar === expectedChar) {
+                // Correct character
+                charElement.classList.add('correct');
+                correctChars++;
+                currentIndex++;
+                
+                // Update next character highlight
+                updateNextCharacterHighlight();
+                updateFingerHint();
+                
+                // Check if lesson is complete
+                if (currentIndex >= currentText.length) {
+                    completeLesson();
+                }
+            } else {
+                // Incorrect character
+                charElement.classList.add('incorrect');
+                errors++;
+                playMistakeSound();
+            }
+            
+            totalChars++;
+            updateStats();
+        }
+
+        // Update next character highlight on keyboard
+        function updateNextCharacterHighlight() {
+            // Remove previous highlights
+            document.querySelectorAll('.key.next').forEach(key => {
+                key.classList.remove('next');
+            });
+            
+            if (currentIndex < currentText.length) {
+                const nextChar = currentText[currentIndex];
+                let keyToHighlight = nextChar.toLowerCase();
+                
+                // Handle special characters
+                if (nextChar === ' ') {
+                    keyToHighlight = 'space';
+                } else if (nextChar.match(/[A-Z]/)) {
+                    keyToHighlight = nextChar.toLowerCase();
+                    // Also highlight shift key
+                    document.querySelectorAll('[data-key="shift"]').forEach(key => {
+                        key.classList.add('next');
+                    });
+                } else if ('!@#$%^&*()_+{}|:"<>?~'.includes(nextChar)) {
+                    // Handle shift + number/symbol combinations
+                    const shiftMap = {
+                        '!': '1', '@': '2', '#': '3', '$': '4', '%': '5',
+                        '^': '6', '&': '7', '*': '8', '(': '9', ')': '0',
+                        '_': '-', '+': '=', '{': '[', '}': ']', '|': '\\',
+                        ':': ';', '"': "'", '<': ',', '>': '.', '?': '/',
+                        '~': '`'
+                    };
+                    keyToHighlight = shiftMap[nextChar] || nextChar;
+                    document.querySelectorAll('[data-key="shift"]').forEach(key => {
+                        key.classList.add('next');
+                    });
+                }
+                
+                const keyElement = document.querySelector(`[data-key="${keyToHighlight}"]`);
+                if (keyElement) {
+                    keyElement.classList.add('next');
+                }
+            }
+        }
+
+        // Update finger hint
+        function updateFingerHint() {
+            const fingerHint = document.getElementById('fingerHint');
+            
+            if (currentIndex < currentText.length) {
+                const nextChar = currentText[currentIndex].toLowerCase();
+                const finger = fingerMap[nextChar] || 'appropriate finger';
+                const charDisplay = currentText[currentIndex] === ' ' ? 'space' : currentText[currentIndex];
+                
+                let hint = `Next: "${charDisplay}" - Use ${finger}`;
+                
+                // Add shift instruction if needed
+                if (currentText[currentIndex].match(/[A-Z]/) || '!@#$%^&*()_+{}|:"<>?~'.includes(currentText[currentIndex])) {
+                    hint += ' (with Shift)';
+                }
+                
+                fingerHint.textContent = hint;
+            } else {
+                fingerHint.textContent = 'Lesson complete!';
+            }
+        }
+
+        // Load lesson text
+        function loadLesson() {
+            const levels = JSON.parse(localStorage.getItem('customLevels')) || defaultLevels;
+            const lessons = JSON.parse(localStorage.getItem('customLessons')) || defaultLessons;
+            
+            currentText = lessons[currentLevel]?.[currentLesson] || 'Sample text for typing practice.';
+            currentIndex = 0;
+            errors = 0;
+            correctChars = 0;
+            totalChars = 0;
+            startTime = null;
+            
+            if (timer) {
+                clearInterval(timer);
+                timer = null;
+            }
+            
+            displayText();
+            updateStats();
+            updateNextCharacterHighlight();
+            updateFingerHint();
+        }
+
+        // Display text with character spans
+        function displayText() {
+            const textDisplay = document.getElementById('textDisplay');
+            textDisplay.innerHTML = '';
+            
+            for (let i = 0; i < currentText.length; i++) {
+                const span = document.createElement('span');
+                span.className = 'char';
+                span.setAttribute('data-index', i);
+                span.textContent = currentText[i];
+                
+                if (i === currentIndex) {
+                    span.classList.add('current');
+                }
+                
+                textDisplay.appendChild(span);
+            }
+        }
+
+        // Update statistics
+        function updateStats() {
+            const accuracy = totalChars > 0 ? Math.round((correctChars / totalChars) * 100) : 100;
+            const timeElapsed = startTime ? (Date.now() - startTime) / 1000 : 0;
+            const wpm = timeElapsed > 0 ? Math.round((correctChars / 5) / (timeElapsed / 60)) : 0;
+            
+            document.getElementById('accuracy').textContent = accuracy + '%';
+            document.getElementById('speed').textContent = wpm;
+            document.getElementById('errors').textContent = errors;
+        }
+
+        // Start timer
+        function startTimer() {
+            timer = setInterval(() => {
+                if (startTime) {
+                    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                    const minutes = Math.floor(elapsed / 60);
+                    const seconds = elapsed % 60;
+                    document.getElementById('time').textContent = 
+                        `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                }
+            }, 1000);
+        }
+
+        // Complete lesson
+        function completeLesson() {
+            if (timer) {
+                clearInterval(timer);
+                timer = null;
+            }
+            
+            // Save lesson statistics
+            saveLessonStats();
+            
+            // Show completion message
+            setTimeout(() => {
+                alert('Lesson completed! Great job!');
+            }, 500);
+        }
+
+        // Save lesson statistics
+        function saveLessonStats() {
+            const stats = JSON.parse(localStorage.getItem('lessonStats')) || {};
+            const key = `${currentLevel}-${currentLesson}`;
+            
+            const accuracy = totalChars > 0 ? Math.round((correctChars / totalChars) * 100) : 100;
+            const timeElapsed = startTime ? (Date.now() - startTime) / 1000 : 0;
+            const wpm = timeElapsed > 0 ? Math.round((correctChars / 5) / (timeElapsed / 60)) : 0;
+            
+            stats[key] = {
+                accuracy,
+                wpm,
+                errors,
+                time: timeElapsed,
+                date: new Date().toISOString()
+            };
+            
+            localStorage.setItem('lessonStats', JSON.stringify(stats));
+        }
+
+        // Generate mistake sounds
+        function generateMistakeSounds() {
+            // Generate different mistake sounds using Web Audio API
+            const frequencies = [800, 600, 400];
+            
+            frequencies.forEach((freq, index) => {
+                const soundKey = `sound${index + 1}`;
+                mistakeSounds[soundKey] = () => {
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.setValueAtTime(freq, audioContext.currentTime);
+                    oscillator.type = 'sine';
+                    
+                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+                    
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.2);
+                };
+            });
+        }
+
+        // Play mistake sound
+        function playMistakeSound() {
+            if (mistakeSounds[currentMistakeSound]) {
+                mistakeSounds[currentMistakeSound]();
+            }
+        }
+
+        // Settings functions
+        function toggleSettings() {
+            const panel = document.getElementById('settingsPanel');
+            panel.classList.toggle('open');
+        }
+
+        function changeTheme() {
+            const theme = document.getElementById('themeSelect').value;
+            document.body.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+        }
+
+        function changeFontSize() {
+            const size = document.getElementById('fontSizeSlider').value;
+            document.getElementById('fontSizeValue').textContent = size + 'px';
+            document.getElementById('textDisplay').style.fontSize = size + 'px';
+            localStorage.setItem('fontSize', size);
+        }
+
+        function changeZoom() {
+            const zoom = document.getElementById('zoomSlider').value;
+            document.getElementById('zoomValue').textContent = zoom + '%';
+            document.body.style.zoom = zoom + '%';
+            localStorage.setItem('zoom', zoom);
+        }
+
+        function changeKeyboardSize() {
+            const size = document.getElementById('keyboardSizeSlider').value;
+            document.getElementById('keyboardSizeValue').textContent = Math.round(size * 100) + '%';
+            document.getElementById('keyboard').style.transform = `scale(${size})`;
+            localStorage.setItem('keyboardSize', size);
+        }
+
+        function changeMistakeSound() {
+            currentMistakeSound = document.getElementById('soundSelect').value;
+            localStorage.setItem('mistakeSound', currentMistakeSound);
+        }
+
+        function changeTextBoxRows() {
+            const rows = document.getElementById('textBoxRowsSlider').value;
+            document.getElementById('textBoxRowsValue').textContent = rows + ' rows';
+            const textDisplay = document.getElementById('textDisplay');
+            textDisplay.style.minHeight = (rows * 30) + 'px';
+            localStorage.setItem('textBoxRows', rows);
+        }
+
+        function changeKeyboardTheme() {
+            const theme = document.getElementById('keyboardThemeSelect').value;
+            const keyboard = document.getElementById('keyboard');
+            keyboard.className = 'keyboard ' + theme;
+            localStorage.setItem('keyboardTheme', theme);
+        }
+
+        // Load settings from localStorage
+        function loadSettings() {
+            const theme = localStorage.getItem('theme') || 'light';
+            const fontSize = localStorage.getItem('fontSize') || '16';
+            const zoom = localStorage.getItem('zoom') || '100';
+            const keyboardSize = localStorage.getItem('keyboardSize') || '1';
+            const mistakeSound = localStorage.getItem('mistakeSound') || 'sound1';
+            const textBoxRows = localStorage.getItem('textBoxRows') || '3';
+            const keyboardTheme = localStorage.getItem('keyboardTheme') || 'default';
+            
+            document.body.setAttribute('data-theme', theme);
+            document.getElementById('themeSelect').value = theme;
+            
+            document.getElementById('fontSizeSlider').value = fontSize;
+            document.getElementById('fontSizeValue').textContent = fontSize + 'px';
+            document.getElementById('textDisplay').style.fontSize = fontSize + 'px';
+            
+            document.getElementById('zoomSlider').value = zoom;
+            document.getElementById('zoomValue').textContent = zoom + '%';
+            document.body.style.zoom = zoom + '%';
+            
+            document.getElementById('keyboardSizeSlider').value = keyboardSize;
+            document.getElementById('keyboardSizeValue').textContent = Math.round(keyboardSize * 100) + '%';
+            document.getElementById('keyboard').style.transform = `scale(${keyboardSize})`;
+            
+            document.getElementById('soundSelect').value = mistakeSound;
+            currentMistakeSound = mistakeSound;
+            
+            document.getElementById('textBoxRowsSlider').value = textBoxRows;
+            document.getElementById('textBoxRowsValue').textContent = textBoxRows + ' rows';
+            document.getElementById('textDisplay').style.minHeight = (textBoxRows * 30) + 'px';
+            
+            document.getElementById('keyboardThemeSelect').value = keyboardTheme;
+            document.getElementById('keyboard').className = 'keyboard ' + keyboardTheme;
+        }
+
+        // Modal functions
+        function openLevelsModal() {
+            document.getElementById('levelsModal').classList.add('open');
+            loadLevels();
+        }
+
+        function closeLevelsModal() {
+            document.getElementById('levelsModal').classList.remove('open');
+        }
+
+        function openLessonsModal() {
+            document.getElementById('lessonsModal').classList.add('open');
+            loadLessons();
+        }
+
+        function closeLessonsModal() {
+            document.getElementById('lessonsModal').classList.remove('open');
+        }
+
+        // Load levels into modal
+        function loadLevels() {
+            const levels = JSON.parse(localStorage.getItem('customLevels')) || defaultLevels;
+            const grid = document.getElementById('levelsGrid');
+            grid.innerHTML = '';
+            
+            Object.keys(levels).forEach(levelKey => {
+                const level = levels[levelKey];
+                const card = document.createElement('div');
+                card.className = 'level-card';
+                if (levelKey === currentLevel) {
+                    card.classList.add('active');
+                }
+                
+                card.innerHTML = `
+                    <h4>${level.name}</h4>
+                    <p>${level.description}</p>
+                `;
+                
+                card.onclick = () => {
+                    currentLevel = levelKey;
+                    currentLesson = 1;
+                    loadLesson();
+                    closeLevelsModal();
+                };
+                
+                grid.appendChild(card);
+            });
+        }
+
+        // Load lessons into modal
+        function loadLessons() {
+            const lessons = JSON.parse(localStorage.getItem('customLessons')) || defaultLessons;
+            const grid = document.getElementById('lessonsGrid');
+            grid.innerHTML = '';
+            
+            const currentLevelLessons = lessons[currentLevel] || {};
+            
+            Object.keys(currentLevelLessons).forEach(lessonKey => {
+                const card = document.createElement('div');
+                card.className = 'lesson-card';
+                if (parseInt(lessonKey) === currentLesson) {
+                    card.classList.add('active');
+                }
+                
+                card.innerHTML = `<h4>Lesson ${lessonKey}</h4>`;
+                
+                card.onclick = () => {
+                    currentLesson = parseInt(lessonKey);
+                    loadLesson();
+                    closeLessonsModal();
+                };
+                
+                grid.appendChild(card);
+            });
+        }
+
+        // Custom level/lesson functions
+        function addCustomLevel() {
+            const name = prompt('Enter level name:');
+            const description = prompt('Enter level description:');
+            
+            if (name && description) {
+                const levels = JSON.parse(localStorage.getItem('customLevels')) || defaultLevels;
+                const key = name.toLowerCase().replace(/\s+/g, '_');
+                levels[key] = { name, description };
+                localStorage.setItem('customLevels', JSON.stringify(levels));
+                loadLevels();
+            }
+        }
+
+        function addCustomLesson() {
+            const text = prompt('Enter lesson text:');
+            
+            if (text) {
+                const lessons = JSON.parse(localStorage.getItem('customLessons')) || defaultLessons;
+                if (!lessons[currentLevel]) {
+                    lessons[currentLevel] = {};
+                }
+                
+                const lessonNumber = Object.keys(lessons[currentLevel]).length + 1;
+                lessons[currentLevel][lessonNumber] = text;
+                localStorage.setItem('customLessons', JSON.stringify(lessons));
+                loadLessons();
+            }
+        }
+
+        function editLevel() {
+            // Implementation for editing levels
+            alert('Edit level functionality - to be implemented');
+        }
+
+        function editLesson() {
+            // Implementation for editing lessons
+            alert('Edit lesson functionality - to be implemented');
+        }
+
+        function deleteLevel() {
+            // Implementation for deleting levels
+            alert('Delete level functionality - to be implemented');
+        }
+
+        function deleteLesson() {
+            // Implementation for deleting lessons
+            alert('Delete lesson functionality - to be implemented');
+        }
+
+        function resetLevels() {
+            if (confirm('Reset all levels to default?')) {
+                localStorage.removeItem('customLevels');
+                loadLevels();
+            }
+        }
+
+        function resetLessons() {
+            if (confirm('Reset all lessons to default?')) {
+                localStorage.removeItem('customLessons');
+                loadLessons();
+            }
+        }
+
+        // Lesson control functions
+        function restartLesson() {
+            loadLesson();
+        }
+
+        function nextLesson() {
+            const lessons = JSON.parse(localStorage.getItem('customLessons')) || defaultLessons;
+            const currentLevelLessons = lessons[currentLevel] || {};
+            const maxLesson = Math.max(...Object.keys(currentLevelLessons).map(Number));
+            
+            if (currentLesson < maxLesson) {
+                currentLesson++;
+                loadLesson();
+            } else {
+                alert('You have completed all lessons in this level!');
+            }
+        }
+
+        // Show statistics
+        function showStats() {
+            const stats = JSON.parse(localStorage.getItem('lessonStats')) || {};
+            const key = `${currentLevel}-${currentLesson}`;
+            const lessonStats = stats[key];
+            
+            if (lessonStats) {
+                alert(`Lesson Statistics:
+                Accuracy: ${lessonStats.accuracy}%
+                Speed: ${lessonStats.wpm} WPM
+                Errors: ${lessonStats.errors}
+                Time: ${Math.floor(lessonStats.time / 60)}:${Math.floor(lessonStats.time % 60).toString().padStart(2, '0')}
+                Date: ${new Date(lessonStats.date).toLocaleDateString()}`);
+            } else {
+                alert('No statistics available for this lesson yet.');
+            }
+        }
+
+        // Handle body clicks to close settings
+        function handleBodyClick(event) {
+            const settingsPanel = document.getElementById('settingsPanel');
+            const settingsBtn = document.querySelector('.settings-btn');
+            
+            if (!settingsPanel.contains(event.target) && !settingsBtn.contains(event.target)) {
+                settingsPanel.classList.remove('open');
+            }
+        }
+
+        // Fullscreen functionality
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                enterFullscreen();
+            } else {
+                exitFullscreen();
+            }
+        }
+
+        function enterFullscreen() {
+            const elem = document.documentElement;
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen();
+            } else if (elem.webkitRequestFullscreen) {
+                elem.webkitRequestFullscreen();
+            } else if (elem.msRequestFullscreen) {
+                elem.msRequestFullscreen();
+            }
+        }
+
+        function exitFullscreen() {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            } else if (document.msExitFullscreen) {
+                document.msExitFullscreen();
+            }
+        }
+
+        // Initialize the application when the page loads
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
