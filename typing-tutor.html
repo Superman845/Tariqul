@@ -1,0 +1,2062 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typing Practice Tutor</title>
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #000000;
+            --primary-color: #4CAF50;
+            --secondary-color: #2196F3;
+            --error-color: #f44336;
+            --success-color: #4CAF50;
+            --key-bg: #f0f0f0;
+            --key-border: #ccc;
+            --key-active: #e0e0e0;
+            --panel-bg: #f9f9f9;
+            --border-color: #ddd;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1a1a1a;
+            --text-color: #ffffff;
+            --key-bg: #333333;
+            --key-border: #555555;
+            --key-active: #444444;
+            --panel-bg: #2a2a2a;
+            --border-color: #555555;
+        }
+
+        [data-theme="night"] {
+            --bg-color: #0d1117;
+            --text-color: #c9d1d9;
+            --key-bg: #21262d;
+            --key-border: #30363d;
+            --key-active: #373e47;
+            --panel-bg: #161b22;
+            --border-color: #30363d;
+        }
+
+        [data-theme="blue"] {
+            --bg-color: #e3f2fd;
+            --text-color: #0d47a1;
+            --key-bg: #bbdefb;
+            --key-border: #90caf9;
+            --key-active: #64b5f6;
+            --panel-bg: #f3e5f5;
+            --border-color: #90caf9;
+        }
+
+        [data-theme="green"] {
+            --bg-color: #e8f5e8;
+            --text-color: #1b5e20;
+            --key-bg: #c8e6c9;
+            --key-border: #a5d6a7;
+            --key-active: #81c784;
+            --panel-bg: #f1f8e9;
+            --border-color: #a5d6a7;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+            overflow-x: hidden;
+            zoom: 130%;
+        }
+
+        [data-theme="night"] body {
+            background-color: var(--bg-color);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .level-selector {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .level-btn, .lesson-btn {
+            padding: 8px 16px;
+            border: 2px solid var(--border-color);
+            background: var(--key-bg);
+            color: var(--text-color);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .level-btn:hover, .lesson-btn:hover {
+            background: var(--key-active);
+            transform: translateY(-2px);
+        }
+
+        .level-btn.active, .lesson-btn.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .settings-btn {
+            padding: 10px 20px;
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .settings-btn:hover {
+            background: #1976D2;
+            transform: translateY(-2px);
+        }
+
+        .stats-display {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: var(--panel-bg);
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+
+        .typing-area {
+            margin-bottom: 20px;
+        }
+
+        .text-display {
+            padding: 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            background: var(--panel-bg);
+            font-family: 'Courier New', monospace;
+            font-size: 35px;
+            line-height: 1.6;
+            min-height: 30px;
+            overflow-y: auto;
+            resize: vertical;
+        }
+
+        .char {
+            font-size: inherit;
+            transition: all 0.2s ease;
+        }
+
+        .char.correct {
+            color: var(--success-color);
+            background-color: rgba(76, 175, 80, 0.1);
+        }
+
+        .char.incorrect {
+            color: var(--error-color);
+            background-color: rgba(244, 67, 54, 0.1);
+        }
+
+        .char.current {
+            background-color: var(--secondary-color);
+            color: white;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+
+        .finger-hint {
+            margin: 10px 0;
+            padding: 10px;
+            background: var(--panel-bg);
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .lesson-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .control-btn {
+            padding: 10px 20px;
+            border: 2px solid var(--border-color);
+            background: var(--key-bg);
+            color: var(--text-color);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: var(--key-active);
+            transform: translateY(-2px);
+        }
+
+        .keyboard {
+            background: var(--panel-bg);
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid var(--border-color);
+            user-select: none;
+            transition: all 0.3s ease;
+        }
+
+        .keyboard.touch-typing-enabled .key {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .keyboard.touch-typing-enabled .key:hover {
+            background: var(--secondary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .keyboard-row {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin-bottom: 5px;
+        }
+
+        .key {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 40px;
+            height: 40px;
+            background: var(--key-bg);
+            border: 2px solid var(--key-border);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: bold;
+            position: relative;
+        }
+
+        .key:hover {
+            background: var(--key-active);
+            transform: translateY(-2px);
+        }
+
+        .key.active {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .key.next {
+            background: var(--secondary-color);
+            color: white;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .key.space {
+            min-width: 200px;
+        }
+
+        .key.shift, .key.ctrl, .key.alt {
+            min-width: 60px;
+        }
+
+        .key.tab {
+            min-width: 50px;
+        }
+
+        .key.caps {
+            min-width: 70px;
+        }
+
+        .key.enter {
+            min-width: 80px;
+        }
+
+        .key.backspace {
+            min-width: 80px;
+        }
+
+        /* Keyboard Themes */
+        .keyboard.gaming {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: 2px solid #764ba2;
+        }
+
+        .keyboard.gaming .key {
+            background: linear-gradient(145deg, #667eea, #764ba2);
+            border: 2px solid #5a67d8;
+            color: white;
+            text-shadow: 0 0 5px rgba(255,255,255,0.5);
+        }
+
+        .keyboard.gaming .key:hover {
+            background: linear-gradient(145deg, #764ba2, #667eea);
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+        }
+
+        .keyboard.gaming .key.active {
+            background: linear-gradient(145deg, #4CAF50, #45a049);
+            color: white;
+            box-shadow: 0 0 15px rgba(76, 175, 80, 0.8);
+        }
+
+        .keyboard.gaming .key.next {
+            background: linear-gradient(145deg, #2196F3, #1976D2);
+            color: white;
+            box-shadow: 0 0 15px rgba(33, 150, 243, 0.8);
+        }
+
+        .keyboard.retro {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border: 2px solid #f5576c;
+        }
+
+        .keyboard.retro .key {
+            background: linear-gradient(145deg, #f093fb, #f5576c);
+            border: 2px solid #e91e63;
+            color: white;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+
+        .keyboard.retro .key:hover {
+            background: linear-gradient(145deg, #f5576c, #f093fb);
+            box-shadow: 0 0 10px rgba(240, 147, 251, 0.5);
+        }
+
+        .keyboard.retro .key.active {
+            background: linear-gradient(145deg, #4CAF50, #45a049);
+            color: white;
+            box-shadow: 0 0 15px rgba(76, 175, 80, 0.8);
+        }
+
+        .keyboard.retro .key.next {
+            background: linear-gradient(145deg, #2196F3, #1976D2);
+            color: white;
+            box-shadow: 0 0 15px rgba(33, 150, 243, 0.8);
+        }
+
+        .keyboard.neon {
+            background: #0a0a0a;
+            border: 2px solid #00ffff;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+        }
+
+        .keyboard.neon .key {
+            background: #1a1a1a;
+            border: 2px solid #00ffff;
+            color: #00ffff;
+            text-shadow: 0 0 10px #00ffff;
+            box-shadow: 0 0 5px rgba(0, 255, 255, 0.3);
+        }
+
+        .keyboard.neon .key:hover {
+            background: #00ffff;
+            color: #000;
+            text-shadow: none;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.8);
+        }
+
+        .keyboard.neon .key.active {
+            background: #4CAF50;
+            color: #000;
+            border-color: #4CAF50;
+            box-shadow: 0 0 15px rgba(76, 175, 80, 0.8);
+        }
+
+        .keyboard.neon .key.next {
+            background: #2196F3;
+            color: #000;
+            border-color: #2196F3;
+            box-shadow: 0 0 15px rgba(33, 150, 243, 0.8);
+        }
+
+        .settings-panel {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 400px;
+            height: 100vh;
+            background: var(--panel-bg);
+            border-left: 2px solid var(--border-color);
+            padding: 20px;
+            transition: right 0.3s ease;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .settings-panel.open {
+            right: 0;
+        }
+
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .close-btn {
+            background: var(--error-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: #d32f2f;
+            transform: scale(1.1);
+        }
+
+        .setting-group {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: var(--bg-color);
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+        }
+
+        .setting-label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .setting-input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 3px;
+            background: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        .setting-select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 3px;
+            background: var(--bg-color);
+            color: var(--text-color);
+        }
+
+
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .modal.open {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--panel-bg);
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 80%;
+            max-height: 80%;
+            overflow-y: auto;
+            border: 2px solid var(--border-color);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .levels-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .level-card {
+            padding: 15px;
+            background: var(--bg-color);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .level-card:hover {
+            background: var(--key-active);
+            transform: translateY(-2px);
+        }
+
+        .level-card.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .lessons-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .lesson-card {
+            padding: 10px;
+            background: var(--bg-color);
+            border: 2px solid var(--border-color);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .lesson-card:hover {
+            background: var(--key-active);
+            transform: translateY(-2px);
+        }
+
+        .lesson-card.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .custom-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .fullscreen-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            z-index: 100;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fullscreen-btn:hover {
+            background: #1976D2;
+            transform: scale(1.1);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .stats-display {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .keyboard {
+                padding: 10px;
+            }
+            
+            .key {
+                min-width: 30px;
+                height: 30px;
+                font-size: 12px;
+            }
+            
+            .settings-panel {
+                width: 100%;
+                right: -100%;
+            }
+        }
+    </style>
+</head>
+<body data-theme="night">
+    <div class="container">
+        <div class="header">
+            <div class="level-selector">
+                <button class="level-btn active" onclick="openLevelsModal()">Levels</button>
+                <button class="lesson-btn" onclick="openLessonsModal()">Lessons</button>
+                <button class="control-btn" onclick="showStats()">Stats</button>
+            </div>
+            <button class="settings-btn" onclick="toggleSettings()">⚙️ Settings</button>
+        </div>
+
+        <div class="stats-display">
+            <div class="stat-item">
+                <div class="stat-value" id="accuracy">100%</div>
+                <div class="stat-label">Accuracy</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="speed">0</div>
+                <div class="stat-label">WPM</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="errors">0</div>
+                <div class="stat-label">Errors</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="time">0:00</div>
+                <div class="stat-label">Time</div>
+            </div>
+        </div>
+
+        <div class="typing-area">
+            <div class="text-display" id="textDisplay"></div>
+            <div class="finger-hint" id="fingerHint">Position your fingers on the home row</div>
+        </div>
+
+        <div class="lesson-controls">
+            <button class="control-btn" onclick="restartLesson()">🔄 Restart</button>
+            <button class="control-btn" onclick="nextLesson()">⏭️ Next Lesson</button>
+        </div>
+
+        <div class="keyboard" id="keyboard"></div>
+    </div>
+
+    <!-- Settings Panel -->
+    <div class="settings-panel" id="settingsPanel">
+        <div class="settings-header">
+            <h3>Settings</h3>
+            <button class="close-btn" onclick="closeSettings()">❌</button>
+        </div>
+
+        <div class="setting-group">
+            <label class="setting-label">Theme</label>
+            <select class="setting-select" id="themeSelect" onchange="changeTheme()">
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+                <option value="night" selected>Night</option>
+                <option value="blue">Blue</option>
+                <option value="green">Green</option>
+            </select>
+        </div>
+
+        <div class="setting-group">
+            <label class="setting-label">Font Size</label>
+            <input type="range" class="setting-input" id="fontSizeSlider" min="12" max="40" value="35" oninput="changeFontSize()">
+            <span id="fontSizeValue">35px</span>
+        </div>
+
+        <div class="setting-group">
+            <label class="setting-label">Zoom Level</label>
+            <input type="range" class="setting-input" id="zoomSlider" min="50" max="200" value="130" oninput="changeZoom()">
+            <span id="zoomValue">130%</span>
+        </div>
+
+        <div class="setting-group">
+            <label class="setting-label">Keyboard Size</label>
+            <input type="range" class="setting-input" id="keyboardSizeSlider" min="0.5" max="2" step="0.1" value="1" oninput="changeKeyboardSize()">
+            <span id="keyboardSizeValue">100%</span>
+        </div>
+
+        <div class="setting-group">
+            <label class="setting-label">Mistake Sound</label>
+            <select class="setting-select" id="soundSelect" onchange="changeMistakeSound()">
+                <option value="sound1">Sound 1</option>
+                <option value="sound2">Sound 2</option>
+                <option value="sound3">Sound 3</option>
+            </select>
+        </div>
+
+        <div class="setting-group">
+            <label class="setting-label">Text Box Rows</label>
+            <input type="range" class="setting-input" id="textBoxRowsSlider" min="1" max="5" value="1" oninput="changeTextBoxRows()">
+            <span id="textBoxRowsValue">1 rows</span>
+        </div>
+
+        <div class="setting-group">
+            <label class="setting-label">Keyboard Theme</label>
+            <select class="setting-select" id="keyboardThemeSelect" onchange="changeKeyboardTheme()">
+                <option value="default">Default</option>
+                <option value="gaming">Gaming</option>
+                <option value="retro">Retro</option>
+                <option value="neon">Neon</option>
+            </select>
+        </div>
+
+        <div class="setting-group">
+            <label class="setting-label">Touch Typing Mode</label>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <input type="checkbox" id="touchTypingToggle" onchange="toggleTouchTyping()" style="width: auto;">
+                <label for="touchTypingToggle">Enable Touch Typing (Clickable Keyboard)</label>
+            </div>
+        </div>
+
+        <div class="setting-group">
+            <label class="setting-label">Reset Settings</label>
+            <button class="control-btn" onclick="resetAllSettings()" style="width: 100%; background: var(--error-color); color: white;">
+                🔄 Reset All Settings to Default
+            </button>
+        </div>
+    </div>
+
+    <!-- Levels Modal -->
+    <div class="modal" id="levelsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h3>Select Level</h3>
+                    <p style="font-size: 12px; color: #666; margin-top: 5px;">Single-click to select, double-click to load</p>
+                </div>
+                <button class="close-btn" onclick="closeLevelsModal()">×</button>
+            </div>
+            <div class="custom-controls">
+                <button class="control-btn" onclick="addCustomLevel()">Add Level</button>
+                <button class="control-btn" onclick="editLevel()">Edit</button>
+                <button class="control-btn" onclick="deleteLevel()">Delete</button>
+                <button class="control-btn" onclick="resetLevels()">Reset</button>
+            </div>
+            <div class="levels-grid" id="levelsGrid"></div>
+        </div>
+    </div>
+
+    <!-- Lessons Modal -->
+    <div class="modal" id="lessonsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h3>Select Lesson</h3>
+                    <p style="font-size: 12px; color: #666; margin-top: 5px;">Single-click to select, double-click to load</p>
+                </div>
+                <button class="close-btn" onclick="closeLessonsModal()">×</button>
+            </div>
+            <div class="custom-controls">
+                <button class="control-btn" onclick="addCustomLesson()">Add Lesson</button>
+                <button class="control-btn" onclick="editLesson()">Edit</button>
+                <button class="control-btn" onclick="deleteLesson()">Delete</button>
+                <button class="control-btn" onclick="resetLessons()">Reset</button>
+            </div>
+            <div class="lessons-grid" id="lessonsGrid"></div>
+        </div>
+    </div>
+
+    <!-- Fullscreen Button -->
+    <button class="fullscreen-btn" onclick="toggleFullscreen()">⛶</button>
+
+    <script>
+        // Global variables
+        let currentLevel = 'introduction';
+        let currentLesson = 1;
+        let currentText = '';
+        let currentIndex = 0;
+        let startTime = null;
+        let errors = 0;
+        let correctChars = 0;
+        let totalChars = 0;
+        let isShiftPressed = false;
+        let timer = null;
+
+        // Audio context for sounds
+        let audioContext = null;
+        let mistakeSounds = {
+            sound1: null,
+            sound2: null,
+            sound3: null
+        };
+        let currentMistakeSound = 'sound1';
+        let touchTypingEnabled = false;
+
+        // Predefined levels and lessons
+        const defaultLevels = {
+            introduction: {
+                name: 'Introduction',
+                description: 'Learn the basics of touch typing'
+            },
+            beginner: {
+                name: 'Beginner',
+                description: 'Start with home row keys'
+            },
+            intermediate: {
+                name: 'Intermediate',
+                description: 'Expand to all letters'
+            },
+            advanced: {
+                name: 'Advanced',
+                description: 'Numbers and special characters'
+            },
+            practice: {
+                name: 'Practice',
+                description: 'Real-world typing practice'
+            },
+            'Y.T Course': {
+                name: 'Y.T Course',
+                description: 'YouTube Course typing lessons'
+            }
+        };
+
+        const defaultLessons = {
+            introduction: {
+                1: 'fff jjj fff jjj fff jjj',
+                2: 'ddd kkk ddd kkk ddd kkk',
+                3: 'sss lll sss lll sss lll',
+                4: 'aaa ;;; aaa ;;; aaa ;;;',
+                5: 'fjdk fjdk fjdk fjdk',
+                6: 'asdf jkl; asdf jkl;',
+                7: 'the quick brown fox',
+                8: 'jumps over the lazy dog',
+                9: 'hello world typing test',
+                10: 'practice makes perfect'
+            },
+            beginner: {
+                1: 'ggg hhh ggg hhh ggg hhh',
+                2: 'rrr uuu rrr uuu rrr uuu',
+                3: 'eee iii eee iii eee iii',
+                4: 'www ooo www ooo www ooo',
+                5: 'qqq ppp qqq ppp qqq ppp',
+                6: 'right hand left hand',
+                7: 'finger position matters',
+                8: 'keep your wrists straight',
+                9: 'look at the screen not keys',
+                10: 'rhythm and consistency'
+            },
+            intermediate: {
+                1: 'ttt yyy ttt yyy ttt yyy',
+                2: 'vvv nnn vvv nnn vvv nnn',
+                3: 'ccc mmm ccc mmm ccc mmm',
+                4: 'xxx ,,, xxx ,,, xxx ,,,',
+                5: 'zzz ... zzz ... zzz ...',
+                6: 'typing with all fingers',
+                7: 'smooth and steady wins',
+                8: 'accuracy over speed',
+                9: 'build muscle memory',
+                10: 'consistent practice daily'
+            },
+            advanced: {
+                1: '111 222 333 444 555',
+                2: '666 777 888 999 000',
+                3: '!@# $%^ &*( )_+ {}|',
+                4: 'The Quick Brown Fox',
+                5: 'JUMPS OVER THE LAZY DOG',
+                6: 'Numbers: 1234567890',
+                7: 'Symbols: !@#$%^&*()',
+                8: 'Mixed: Hello123 World!',
+                9: 'Email: user@example.com',
+                10: 'Code: function() { return true; }'
+            },
+            practice: {
+                1: 'The art of typing is a skill that requires patience and practice.',
+                2: 'Touch typing allows you to type without looking at the keyboard.',
+                3: 'Proper finger placement on the home row is essential for speed.',
+                4: 'Regular practice sessions will improve your typing accuracy.',
+                5: 'Maintaining good posture while typing prevents strain and injury.',
+                6: 'The quick brown fox jumps over the lazy dog near the riverbank.',
+                7: 'Programming requires fast and accurate typing skills for efficiency.',
+                8: 'Email communication in the modern workplace demands good typing.',
+                9: 'Students who can type well have an advantage in digital learning.',
+                10: 'Typing speed of 40+ WPM is considered proficient for most jobs.'
+            },
+            'Y.T Course': {
+                'Day 1': 'asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj asdf ;lkj',
+                'Day 2': 'asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfgf \';lkjhj asdfg',
+                'Day 3': 'all; all; all; all; all; ash; ash; ash; ash; ash; ask; ask; ask; ask; ask; add; add; add; add; add; has; has; has; has; has; had; had; had; had; had; sad; sad; sad; sad; sad; lad; lad; lad; lad; lad; kad; kad; kad; kad; kad; lash; lash; lash; lash; lash; gas; gas; gas; gas; gas; glass; glass; glass; glass; glass; jag; jag; jag; jag; jag; fad; fad; fad; fad; fad; dad; dad; dad; dad; dad; dalda; dalda; dalda; dalda; dalda; fall; fall; fall; fall; fall; glad; glad; glad; glad; glad; flags; flags; flags; flags; flags; halda; halda; halda; halda; halda; dash; dash; dash; dash; dash; flash; flash; flash; flash; flash; lakh; lakh; lakh; lakh; lakh; flask; flask; flask; flask; flask; kajal; kajal; kajal; kajal; kajal; jakal; jakal; jakal; jakal; jakal all; all; all; all; all; ash; ash; ash; ash; ash; ask; ask; ask; ask; ask; add; add; add; add; add; has; has; has; has; has; had; had; had; had; had; sad; sad; sad; sad; sad; lad; lad; lad; lad; lad; kad; kad; kad; kad; kad; lash; lash; lash; lash; lash; gas; gas; gas; gas; gas; glass; glass; glass; glass; glass; jag; jag; jag; jag; jag; fad; fad; fad; fad; fad; dad; dad; dad; dad; dad; dalda; dalda; dalda; dalda; dalda; fall; fall; fall; fall; fall; glad; glad; glad; glad; glad; flags; flags; flags; flags; flags; halda; halda; halda; halda; halda; dash; dash; dash; dash; dash; flash; flash; flash; flash; flash; lakh; lakh; lakh; lakh; lakh; flask; flask; flask; flask; flask; kajal; kajal; kajal; kajal; kajal; jakal; jakal; jakal; jakal; jakal all; all; all; all; all; ash; ash; ash; ash; ash; ask; ask; ask; ask; ask; add; add; add; add; add; has; has; has; has; has; had; had; had; had; had; sad; sad; sad; sad; sad; lad; lad; lad; lad; lad; kad; kad; kad; kad; kad; lash; lash; lash; lash; lash; gas; gas; gas; gas; gas; glass; glass; glass; glass; glass; jag; jag; jag; jag; jag; fad; fad; fad; fad; fad; dad; dad; dad; dad; dad; dalda; dalda; dalda; dalda; dalda; fall; fall; fall; fall; fall; glad; glad; glad; glad; glad; flags; flags; flags; flags; flags; halda; halda; halda; halda; halda; dash; dash; dash; dash; dash; flash; flash; flash; flash; flash; lakh; lakh; lakh; lakh; lakh; flask; flask; flask; flask; flask; kajal; kajal; kajal; kajal; kajal; jakal; jakal; jakal; jakal; jakal all; all; all; all; all; ash; ash; ash; ash; ash; ask; ask; ask; ask; ask; add; add; add; add; add; has; has; has; has; has; had; had; had; had; had; sad; sad; sad; sad; sad; lad; lad; lad; lad; lad; kad; kad; kad; kad; kad; lash; lash; lash; lash; lash; gas; gas; gas; gas; gas; glass; glass; glass; glass; glass; jag; jag; jag; jag; jag; fad; fad; fad; fad; fad; dad; dad; dad; dad; dad; dalda; dalda; dalda; dalda; dalda; fall; fall; fall; fall; fall; glad; glad; glad; glad; glad; flags; flags; flags; flags; flags; halda; halda; halda; halda; halda; dash; dash; dash; dash; dash; flash; flash; flash; flash; flash; lakh; lakh; lakh; lakh; lakh; flask; flask; flask; flask; flask; kajal; kajal; kajal; kajal; kajal; jakal; jakal; jakal; jakal; jakal all; all; all; all; all; ash; ash; ash; ash; ash; ask; ask; ask; ask; ask; add; add; add; add; add; has; has; has; has; has; had; had; had; had; had; sad; sad; sad; sad; sad; lad; lad; lad; lad; lad; kad; kad; kad; kad; kad; lash; lash; lash; lash; lash; gas; gas; gas; gas; gas; glass; glass; glass; glass; glass; jag; jag; jag; jag; jag; fad; fad; fad; fad; fad; dad; dad; dad; dad; dad; dalda; dalda; dalda; dalda; dalda; fall; fall; fall; fall; fall; glad; glad; glad; glad; glad; flags; flags; flags; flags; flags; halda; halda; halda; halda; halda; dash; dash; dash; dash; dash; flash; flash; flash; flash; flash; lakh; lakh; lakh; lakh; lakh; flask; flask; flask; flask; flask; kajal; kajal; kajal; kajal; kajal; jakal; jakal; jakal; jakal; jakal all; all; all; all; all; ash; ash; ash; ash; ash; ask; ask; ask; ask; ask; add; add; add; add; add; has; has; has; has; has; had; had; had; had; had; sad; sad; sad; sad; sad; lad; lad; lad; lad; lad; kad; kad; kad; kad; kad; lash; lash; lash; lash; lash; gas; gas; gas; gas; gas; glass; glass; glass; glass; glass; jag; jag; jag; jag; jag; fad; fad; fad; fad; fad; dad; dad; dad; dad; dad; dalda; dalda; dalda; dalda; dalda; fall; fall; fall; fall; fall; glad; glad; glad; glad; glad; flags; flags; flags; flags; flags; halda; halda; halda; halda; halda; dash; dash; dash; dash; dash; flash; flash; flash; flash; flash; lakh; lakh; lakh; lakh; lakh; flask; flask; flask; flask; flask; kajal; kajal; kajal; kajal; kajal; jakal; jakal; jakal; jakal; jakal all; all; all; all; all; ash; ash; ash; ash; ash; ask; ask; ask; ask; ask; add; add; add; add; add; has; has; has; has; has; had; had; had; had; had; sad; sad; sad; sad; sad; lad; lad; lad; lad; lad; kad; kad; kad; kad; kad; lash; lash; lash; lash; lash; gas; gas; gas; gas; gas; glass; glass; glass; glass; glass; jag; jag; jag; jag; jag; fad; fad; fad; fad; fad; dad; dad; dad; dad; dad; dalda; dalda; dalda; dalda; dalda; fall; fall; fall; fall; fall; glad; glad; glad; glad; glad; flags; flags; flags; flags; flags; halda; halda; halda; halda; halda; dash; dash; dash; dash; dash; flash; flash; flash; flash; flash; lakh; lakh; lakh; lakh; lakh; flask; flask; flask; flask; flask; kajal; kajal; kajal; kajal; kajal; jakal; jakal; jakal; jakal; jakal all; all; all; all; all; ash; ash; ash; ash; ash; ask; ask; ask; ask; ask; add; add; add; add; add; has; has; has; has; has; had; had; had; had; had; sad; sad; sad; sad; sad; lad; lad; lad; lad; lad; kad; kad; kad; kad; kad; lash; lash; lash; lash; lash; gas; gas; gas; gas; gas; glass; glass; glass; glass; glass; jag; jag; jag; jag; jag; fad; fad; fad; fad; fad; dad; dad; dad; dad; dad; dalda; dalda; dalda; dalda; dalda; fall; fall; fall; fall; fall; glad; glad; glad; glad; glad; flags; flags; flags; flags; flags; halda; halda; halda; halda; halda; dash; dash; dash; dash; dash; flash; flash; flash; flash; flash; lakh; lakh; lakh; lakh; lakh; flask; flask; flask; flask; flask; kajal; kajal; kajal; kajal; kajal; jakal; jakal; jakal; jakal; jakal all; all; all; all; all; ash; ash; ash; ash; ash; ask; ask; ask; ask; ask; add; add; add; add; add; has; has; has; has; has; had; had; had; had; had; sad; sad; sad; sad; sad; lad; lad; lad; lad; lad; kad; kad; kad; kad; kad; lash; lash; lash; lash; lash; gas; gas; gas; gas; gas; glass; glass; glass; glass; glass; jag; jag; jag; jag; jag; fad; fad; fad; fad; fad; dad; dad; dad; dad; dad; dalda; dalda; dalda; dalda; dalda; fall; fall; fall; fall; fall; glad; glad; glad; glad; glad; flags; flags; flags; flags; flags; halda; halda; halda; halda; halda; dash; dash; dash; dash; dash; flash; flash; flash; flash; flash; lakh; lakh; lakh; lakh; lakh; flask; flask; flask; flask; flask; kajal; kajal; kajal; kajal; kajal; jakal; jakal; jakal; jakal; jakal \'kajal\' \'kajal\' \'kajal\' \'kajal\' \'kajal\' \'kajal\' \'kajal\' \'kajal\' \'kajal\' \'kajal\' \'kajal\' \'kajal\' \'kajal\' \'kajal\' \'kajal\' \'kajal\' \'kajal\' \'kajal\' \'kajal\' \'kajal\'',
+                'Day 4': 'q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y q w e r  t p o i u y',
+                'Day 5': 'sea sea sea sea sea fee fee fee fee fee see see see see see try try try try try hit hit hit hit hit write write write write write rat rat rat rat rat hat hat hat hat hat lot lot lot lot lot did did did did did all all all all all kid kid kid kid kid oil oil oil oil oil pot pot pot pot pot toy toy toy toy toy eat eat eat eat eat tea tea tea tea tea test test test test test sit sit sit sit sit fill fill fill fill fill pat pat pat pat pat file file file file file are are are are are out out out out out ark ark ark ark ark life life life life life pity pity pity pity pity said said said said said sad sad sad sad sad tail tail tail tail tail trial trial trial trial trial easy easy easy easy easy right right right right right height height height height height white white white white white large large large large large route route route route route early early early early early root root root root root sea fee see try hit write rat hat lot did all kid oil pot toy eat tea test sit fill pat file are out ark life pity said sad tail trial easy right height white large route early root sea fee see try hit write rat hat lot did all kid oil pot toy eat tea test sit fill pat file are out ark life pity said sad tail trial easy right height white large route early root sea fee see try hit write rat hat lot did all kid oil pot toy eat tea test sit fill pat file are out ark life pity said sad tail trial easy right height white large route early root sea fee see try hit write rat hat lot did all kid oil pot toy eat tea test sit fill pat file are out ark life pity said sad tail trial easy right height white large route early root sea fee see try hit write rat hat lot did all kid oil pot toy eat tea test sit fill pat file are out ark life pity said sad tail trial easy right height white large route early root sea fee see try hit write rat hat lot did all kid oil pot toy eat tea test sit fill pat file are out ark life pity said sad tail trial easy right height white large route early root sea fee see try hit write rat hat lot did all kid oil pot toy eat tea test sit fill pat file are out ark life pity said sad tail trial easy right height white large route early root sea fee see try hit write rat hat lot did all kid oil pot toy eat tea test sit fill pat file are out ark life pity said sad tail trial easy right height white large route early root sea fee see try hit write rat hat lot did all kid oil pot toy eat tea test sit fill pat file are out ark life pity said sad tail trial easy right height white large route early root sea fee see try hit write rat hat lot did all kid oil pot toy eat tea test sit fill pat file are out ark life pity said sad tail trial easy right height white large route early root what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\' what is your real \'height\'',
+                'Day 6': 'z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b z x c v /. , m n b',
+                'Day 7': 'hand hand hand hand hand small small small small small chest chest chest chest chest very very very very very hen hen hen hen hen pen pen pen pen pen time time time time time around around around around around hangs hangs hangs hangs hangs lazy lazy lazy lazy lazy son son son son son net net net net net upon upon upon upon upon rights rights rights rights rights women women women women women moral moral moral moral moral bird bird bird bird bird men men men men men habit habit habit habit habit powers powers powers powers powers borrow borrow borrow borrow borrow narrow narrow narrow narrow narrow catch catch catch catch catch vens vens vens vens vens earns earns earns earns earns school school school school school college college college college college village village village village village certain certain certain certain certain curtain curtain curtain curtain curtain zebra zebra zebra zebra zebra cutter cutter cutter cutter cutter require require require require require request request request request request beside beside beside beside beside before before before before before hand small chest very hen pen time around hangs lazy son net upon rights women moral bird men habit powers borrow narrow catch vens earns school college village certain curtain zebra cutter require request beside before hand small chest very hen pen time around hangs lazy son net upon rights women moral bird men habit powers borrow narrow catch vens earns school college village certain curtain zebra cutter require request beside before hand small chest very hen pen time around hangs lazy son net upon rights women moral bird men habit powers borrow narrow catch vens earns school college village certain curtain zebra cutter require request beside before hand small chest very hen pen time around hangs lazy son net upon rights women moral bird men habit powers borrow narrow catch vens earns school college village certain curtain zebra cutter require request beside before hand small chest very hen pen time around hangs lazy son net upon rights women moral bird men habit powers borrow narrow catch vens earns school college village certain curtain zebra cutter require request beside before hand small chest very hen pen time around hangs lazy son net upon rights women moral bird men habit powers borrow narrow catch vens earns school college village certain curtain zebra cutter require request beside before hand small chest very hen pen time around hangs lazy son net upon rights women moral bird men habit powers borrow narrow catch vens earns school college village certain curtain zebra cutter require request beside before hand small chest very hen pen time around hangs lazy son net upon rights women moral bird men habit powers borrow narrow catch vens earns school college village certain curtain zebra cutter require request beside before hand small chest very hen pen time around hangs lazy son net upon rights women moral bird men habit powers borrow narrow catch vens earns school college village certain curtain zebra cutter require request beside before hand small chest very hen pen time around hangs lazy son net upon rights women moral bird men habit powers borrow narrow catch vens earns school college village certain curtain zebra cutter require request beside before',
+                'Day 8': '1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6 1 2 3 4 5 0 9 8 7 6',
+                'Day 8.1': '! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^ ! @ # $ % ) ( * & ^',
+                'Day 9': 'Typing Is A Valuable Skill That Everyone Should Learn From An Early Age Whether You Are Writing Emails Reports Stories Or Even Coding The Ability To Type Fast And Accurately Can Make Your Life Easier And More Productive Each Word You Type Brings You Closer To Mastery So Keep Practicing Even If You Make Mistakes Do Not Be Discouraged Instead Use Every Error As A Learning Opportunity Stay Calm Focused And Determined To Improve With Every Session You Can Practice By Typing Meaningful Sentences Phrases And Even Creative Paragraphs That Help You Remember Proper Hand Placement And Finger Movement It May Seem Difficult At First But Over Time You Will Notice A Big Difference In Speed Confidence And Accuracy Just Remember That Practice Makes Perfect Try To Sit Comfortably With Your Feet Flat On The Floor Your Fingers Resting Lightly On The Home Row Keys And Your Eyes Focused On The Screen Not Your Keyboard This Will Train Your Muscle Memory And Help You Type Without Looking The More You Practice The Easier It Becomes Challenge Yourself By Typing Long Passages Without Pausing Or Correcting Mistakes Until The End This Will Help Build Rhythm And Endurance Over Time You Can Begin To Add Speed Tests And Try To Beat Your Own Records As You Become More Confident You Will Be Able To Handle Complex Typing Tasks With Ease Whether You Are Typing A Resume A Novel A Project Proposal Or Even A Personal Journal You Will Be Able To Complete It With Fewer Errors And Greater Efficiency Never Underestimate The Power Of A Strong Typing Foundation In A World That Relies Heavily On Digital Communication Being Able To Express Yourself Quickly And Clearly Can Give You A Huge Advantage So Keep Typing Keep Learning And Keep Pushing Forward Because You Are Capable Of Great Progress Typing Is Not Just About Speed It Is About Precision Consistency And Expression As Well When You Type With Purpose And Focus Every Word Becomes A Step Forward On Your Journey To Excellence Take Breaks When Needed Stay Hydrated And Come Back With Renewed Energy To Type Even Better Than Before Remember That Everyone Starts As A Beginner Even The Fastest Typists In The World Had To Begin With The Basics What Matters Most Is That You Keep Going Improve A Little Each Day And Stay Committed To Your Goal You Can Do This Keep Believing In Yourself And Never Stop Practicing Good Typing Skills Will Serve You For Life',
+                'Day 9.1': 'Typing!Is@Essential#For$Every%Modern)User(Who*Wants&To^Work!Faster@And#More$Effectively%Each)Day(You*Practice&Typing^Improves!Your@Speed#And$Accuracy%So)Keep(Going*Even&If^You!Make@Mistakes#In$The%Beginning)Everyone(Can*Improve&Their^Typing!Skill@Set#With$Regular%Effort)Just(Remember*That&Proper^Posture!And@Focus#Lead$To%Better)Results(Over*Time&Whether^You!Are@Typing#Reports$Emails%Or)Code(Each*Keystroke&Matters^As!You@Practice#More$Often%You)Will(Notice*Big&Improvements^Soon!Always@Use#All$Fingers%Not)Just(Index(And*Thumbs&Because^That!Helps@Build#Muscle$Memory%Quickly)Try(Different*Exercises&Stay^Motivated!Use@Challenges#To$Keep%Things)Exciting(Learn*Shortcuts&Improve^Efficiency!Keep@Your#Eyes$On%The)Screen(Not*Keyboard)&Train^Your!Mind@To#Follow$The%Text)As(You*Type&Correct^Errors!Only@After#You$Finish%The)Line(So*That&You^Maintain!Speed@And#Rhythm$Throughout%Your)Session(This*Will&Help^You!Type@Like#A$Pro%In)No(Time*Just&Be^Patient!Success@Comes#With$Daily%Practice)And(Discipline*So&Never^Give!Up@Even#If$You%Feel)Tired(Keep*Trying&Push^Your!Limits@And#You$Will%Achieve)Great(Results*Every&Day^Because!Consistency@Is#Key$To%Typing)Mastery(Take*Breaks&Stretch^Often!Drink@Water#Stay$Healthy%And)Happy(While*Practicing&Let^Typing!Become@A#Part$Of%Your)Routine(So*It&Feels^Natural!Soon@You#Will$Be%Typing)Without(Looking*And&Making^Almost!No@Mistakes#At$All%You)Will(Feel*More&Confident^In!Your@Skills#And$Complete%Tasks)Faster(Than*Ever&Before^Let!Typing@Be#Your$Superpower%In)The(Digital*World&Show^Your!Talent@Through#Words$Every%Single)Day(With*Every&Effort^You!Grow@And#Master$Each%Letter)Symbol(*And&Word^)One!Step@At#A$Time%You)Are(Growing*Into&A^Typing!Champion@So#Keep$Going%And)Never(Look*Back&Always^Look!Forward@To#Improving$Even%More)Now(Get*Ready&Go^Again!',
+                'Day 10': 'abcdefghijklmnopqrstuvwxyz',
+                'Day 10.1': 'The quick brown fox jumps upon right over a lazy dog'
+            }
+        };
+
+        // Finger mapping for hints
+        const fingerMap = {
+            'q': 'left pinky', 'w': 'left ring', 'e': 'left middle', 'r': 'left index', 't': 'left index',
+            'y': 'right index', 'u': 'right index', 'i': 'right middle', 'o': 'right ring', 'p': 'right pinky',
+            'a': 'left pinky', 's': 'left ring', 'd': 'left middle', 'f': 'left index', 'g': 'left index',
+            'h': 'right index', 'j': 'right index', 'k': 'right middle', 'l': 'right ring', ';': 'right pinky',
+            'z': 'left pinky', 'x': 'left ring', 'c': 'left middle', 'v': 'left index', 'b': 'left index',
+            'n': 'right index', 'm': 'right index', ',': 'right middle', '.': 'right ring', '/': 'right pinky',
+            ' ': 'thumbs', '1': 'left pinky', '2': 'left ring', '3': 'left middle', '4': 'left index', '5': 'left index',
+            '6': 'right index', '7': 'right index', '8': 'right middle', '9': 'right ring', '0': 'right pinky'
+        };
+
+        // Initialize the application
+        function init() {
+            loadSettings();
+            createKeyboard();
+            loadLevels();
+            loadLessons();
+            generateMistakeSounds();
+            loadLesson();
+            
+            // Add event listeners
+            document.addEventListener('keydown', handleKeyDown);
+            document.addEventListener('keyup', handleKeyUp);
+            document.addEventListener('click', handleBodyClick);
+            
+            // Request fullscreen on load
+            setTimeout(() => {
+                enterFullscreen();
+            }, 100);
+        }
+
+        // Create virtual keyboard
+        function createKeyboard() {
+            const keyboard = document.getElementById('keyboard');
+            const rows = [
+                ['`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', 'backspace'],
+                ['tab', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\\'],
+                ['caps', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', "'", 'enter'],
+                ['shift', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', 'shift'],
+                ['ctrl', 'alt', 'space', 'alt', 'ctrl']
+            ];
+
+            keyboard.innerHTML = '';
+            rows.forEach(row => {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'keyboard-row';
+                
+                row.forEach(key => {
+                    const keyDiv = document.createElement('div');
+                    keyDiv.className = `key ${key}`;
+                    keyDiv.setAttribute('data-key', key);
+                    
+                    if (key === 'space') {
+                        keyDiv.textContent = '';
+                        keyDiv.className += ' space';
+                    } else if (key === 'backspace') {
+                        keyDiv.textContent = '⌫';
+                        keyDiv.className += ' backspace';
+                    } else if (key === 'enter') {
+                        keyDiv.textContent = '↵';
+                        keyDiv.className += ' enter';
+                    } else if (key === 'shift') {
+                        keyDiv.textContent = '⇧';
+                        keyDiv.className += ' shift';
+                    } else if (key === 'tab') {
+                        keyDiv.textContent = '⇥';
+                        keyDiv.className += ' tab';
+                    } else if (key === 'caps') {
+                        keyDiv.textContent = '⇪';
+                        keyDiv.className += ' caps';
+                    } else if (key === 'ctrl') {
+                        keyDiv.textContent = 'Ctrl';
+                        keyDiv.className += ' ctrl';
+                    } else if (key === 'alt') {
+                        keyDiv.textContent = 'Alt';
+                        keyDiv.className += ' alt';
+                    } else {
+                        keyDiv.textContent = key;
+                    }
+                    
+                    rowDiv.appendChild(keyDiv);
+                });
+                
+                keyboard.appendChild(rowDiv);
+            });
+        }
+
+        // Handle key press
+        function handleKeyDown(event) {
+            const key = event.key;
+            const keyCode = event.keyCode;
+            
+            // Handle shift key
+            if (key === 'Shift') {
+                isShiftPressed = true;
+                updateKeyboardShift();
+                return;
+            }
+            
+            // Prevent default behavior for typing keys
+            if (keyCode >= 32 && keyCode <= 126) {
+                event.preventDefault();
+            }
+            
+            // Highlight pressed key
+            highlightKey(key);
+            
+            // Process the typed character
+            processTypedCharacter(key);
+        }
+
+        function handleKeyUp(event) {
+            const key = event.key;
+            
+            if (key === 'Shift') {
+                isShiftPressed = false;
+                updateKeyboardShift();
+            }
+            
+            // Remove highlight from key
+            removeKeyHighlight(key);
+        }
+
+        // Update keyboard display for shift state
+        function updateKeyboardShift() {
+            const keys = document.querySelectorAll('.key');
+            keys.forEach(key => {
+                const keyData = key.getAttribute('data-key');
+                if (isShiftPressed) {
+                    switch(keyData) {
+                        case '1': key.textContent = '!'; break;
+                        case '2': key.textContent = '@'; break;
+                        case '3': key.textContent = '#'; break;
+                        case '4': key.textContent = '$'; break;
+                        case '5': key.textContent = '%'; break;
+                        case '6': key.textContent = '^'; break;
+                        case '7': key.textContent = '&'; break;
+                        case '8': key.textContent = '*'; break;
+                        case '9': key.textContent = '('; break;
+                        case '0': key.textContent = ')'; break;
+                        case '-': key.textContent = '_'; break;
+                        case '=': key.textContent = '+'; break;
+                        case '[': key.textContent = '{'; break;
+                        case ']': key.textContent = '}'; break;
+                        case '\\': key.textContent = '|'; break;
+                        case ';': key.textContent = ':'; break;
+                        case "'": key.textContent = '"'; break;
+                        case ',': key.textContent = '<'; break;
+                        case '.': key.textContent = '>'; break;
+                        case '/': key.textContent = '?'; break;
+                        case '`': key.textContent = '~'; break;
+                        default:
+                            if (keyData.length === 1 && keyData.match(/[a-z]/)) {
+                                key.textContent = keyData.toUpperCase();
+                            }
+                    }
+                } else {
+                    // Reset to normal state
+                    if (keyData === 'space') {
+                        key.textContent = '';
+                    } else if (keyData === 'backspace') {
+                        key.textContent = '⌫';
+                    } else if (keyData === 'enter') {
+                        key.textContent = '↵';
+                    } else if (keyData === 'shift') {
+                        key.textContent = '⇧';
+                    } else if (keyData === 'tab') {
+                        key.textContent = '⇥';
+                    } else if (keyData === 'caps') {
+                        key.textContent = '⇪';
+                    } else if (keyData === 'ctrl') {
+                        key.textContent = 'Ctrl';
+                    } else if (keyData === 'alt') {
+                        key.textContent = 'Alt';
+                    } else {
+                        key.textContent = keyData;
+                    }
+                }
+            });
+        }
+
+        // Highlight key on keyboard
+        function highlightKey(key) {
+            const keyElement = document.querySelector(`[data-key="${key.toLowerCase()}"]`);
+            if (keyElement) {
+                keyElement.classList.add('active');
+            }
+            
+            // Handle special keys
+            if (key === ' ') {
+                const spaceKey = document.querySelector('[data-key="space"]');
+                if (spaceKey) spaceKey.classList.add('active');
+            }
+        }
+
+        // Remove key highlight
+        function removeKeyHighlight(key) {
+            const keyElement = document.querySelector(`[data-key="${key.toLowerCase()}"]`);
+            if (keyElement) {
+                keyElement.classList.remove('active');
+            }
+            
+            if (key === ' ') {
+                const spaceKey = document.querySelector('[data-key="space"]');
+                if (spaceKey) spaceKey.classList.remove('active');
+            }
+        }
+
+        // Process typed character
+        function processTypedCharacter(key) {
+            if (currentIndex >= currentText.length) return;
+            
+            const expectedChar = currentText[currentIndex];
+            const typedChar = key;
+            
+            // Start timer on first keypress
+            if (startTime === null) {
+                startTime = Date.now();
+                startTimer();
+            }
+            
+            const charElement = document.querySelector(`[data-index="${currentIndex}"]`);
+            
+            if (typedChar === expectedChar) {
+                // Correct character
+                charElement.classList.add('correct');
+                correctChars++;
+                currentIndex++;
+                
+                // Update next character highlight
+                updateNextCharacterHighlight();
+                updateFingerHint();
+                
+                // Check if lesson is complete
+                if (currentIndex >= currentText.length) {
+                    completeLesson();
+                }
+            } else {
+                // Incorrect character
+                charElement.classList.add('incorrect');
+                errors++;
+                playMistakeSound();
+            }
+            
+            totalChars++;
+            updateStats();
+        }
+
+        // Update next character highlight on keyboard
+        function updateNextCharacterHighlight() {
+            // Remove previous highlights
+            document.querySelectorAll('.key.next').forEach(key => {
+                key.classList.remove('next');
+            });
+            
+            if (currentIndex < currentText.length) {
+                const nextChar = currentText[currentIndex];
+                let keyToHighlight = nextChar.toLowerCase();
+                
+                // Handle special characters
+                if (nextChar === ' ') {
+                    keyToHighlight = 'space';
+                } else if (nextChar.match(/[A-Z]/)) {
+                    keyToHighlight = nextChar.toLowerCase();
+                    // Also highlight shift key
+                    document.querySelectorAll('[data-key="shift"]').forEach(key => {
+                        key.classList.add('next');
+                    });
+                } else if ('!@#$%^&*()_+{}|:"<>?~'.includes(nextChar)) {
+                    // Handle shift + number/symbol combinations
+                    const shiftMap = {
+                        '!': '1', '@': '2', '#': '3', '$': '4', '%': '5',
+                        '^': '6', '&': '7', '*': '8', '(': '9', ')': '0',
+                        '_': '-', '+': '=', '{': '[', '}': ']', '|': '\\',
+                        ':': ';', '"': "'", '<': ',', '>': '.', '?': '/',
+                        '~': '`'
+                    };
+                    keyToHighlight = shiftMap[nextChar] || nextChar;
+                    document.querySelectorAll('[data-key="shift"]').forEach(key => {
+                        key.classList.add('next');
+                    });
+                }
+                
+                const keyElement = document.querySelector(`[data-key="${keyToHighlight}"]`);
+                if (keyElement) {
+                    keyElement.classList.add('next');
+                }
+            }
+        }
+
+        // Update finger hint
+        function updateFingerHint() {
+            const fingerHint = document.getElementById('fingerHint');
+            
+            if (currentIndex < currentText.length) {
+                const nextChar = currentText[currentIndex].toLowerCase();
+                const finger = fingerMap[nextChar] || 'appropriate finger';
+                const charDisplay = currentText[currentIndex] === ' ' ? 'space' : currentText[currentIndex];
+                
+                let hint = `Next: "${charDisplay}" - Use ${finger}`;
+                
+                // Add shift instruction if needed
+                if (currentText[currentIndex].match(/[A-Z]/) || '!@#$%^&*()_+{}|:"<>?~'.includes(currentText[currentIndex])) {
+                    hint += ' (with Shift)';
+                }
+                
+                fingerHint.textContent = hint;
+            } else {
+                fingerHint.textContent = 'Lesson complete!';
+            }
+        }
+
+        // Load lesson text
+        function loadLesson() {
+            const levels = JSON.parse(localStorage.getItem('customLevels')) || defaultLevels;
+            const lessons = JSON.parse(localStorage.getItem('customLessons')) || defaultLessons;
+            
+            currentText = lessons[currentLevel]?.[currentLesson] || 'Sample text for typing practice.';
+            currentIndex = 0;
+            errors = 0;
+            correctChars = 0;
+            totalChars = 0;
+            startTime = null;
+            
+            if (timer) {
+                clearInterval(timer);
+                timer = null;
+            }
+            
+            displayText();
+            updateStats();
+            updateNextCharacterHighlight();
+            updateFingerHint();
+        }
+
+        // Display text with character spans
+        function displayText() {
+            const textDisplay = document.getElementById('textDisplay');
+            textDisplay.innerHTML = '';
+            
+            for (let i = 0; i < currentText.length; i++) {
+                const span = document.createElement('span');
+                span.className = 'char';
+                span.setAttribute('data-index', i);
+                span.textContent = currentText[i];
+                
+                if (i === currentIndex) {
+                    span.classList.add('current');
+                }
+                
+                textDisplay.appendChild(span);
+            }
+        }
+
+        // Update statistics
+        function updateStats() {
+            const accuracy = totalChars > 0 ? Math.round((correctChars / totalChars) * 100) : 100;
+            const timeElapsed = startTime ? (Date.now() - startTime) / 1000 : 0;
+            const wpm = timeElapsed > 0 ? Math.round((correctChars / 5) / (timeElapsed / 60)) : 0;
+            
+            document.getElementById('accuracy').textContent = accuracy + '%';
+            document.getElementById('speed').textContent = wpm;
+            document.getElementById('errors').textContent = errors;
+        }
+
+        // Start timer
+        function startTimer() {
+            timer = setInterval(() => {
+                if (startTime) {
+                    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                    const minutes = Math.floor(elapsed / 60);
+                    const seconds = elapsed % 60;
+                    document.getElementById('time').textContent = 
+                        `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                }
+            }, 1000);
+        }
+
+        // Complete lesson
+        function completeLesson() {
+            if (timer) {
+                clearInterval(timer);
+                timer = null;
+            }
+            
+            // Save lesson statistics
+            saveLessonStats();
+            
+            // Show completion message
+            setTimeout(() => {
+                alert('Lesson completed! Great job!');
+            }, 500);
+        }
+
+        // Save lesson statistics
+        function saveLessonStats() {
+            const stats = JSON.parse(localStorage.getItem('lessonStats')) || {};
+            const key = `${currentLevel}-${currentLesson}`;
+            
+            const accuracy = totalChars > 0 ? Math.round((correctChars / totalChars) * 100) : 100;
+            const timeElapsed = startTime ? (Date.now() - startTime) / 1000 : 0;
+            const wpm = timeElapsed > 0 ? Math.round((correctChars / 5) / (timeElapsed / 60)) : 0;
+            
+            stats[key] = {
+                accuracy,
+                wpm,
+                errors,
+                time: timeElapsed,
+                date: new Date().toISOString()
+            };
+            
+            localStorage.setItem('lessonStats', JSON.stringify(stats));
+        }
+
+        // Generate mistake sounds
+        function generateMistakeSounds() {
+            try {
+                const context = new (window.AudioContext || window.webkitAudioContext)();
+                const frequencies = [800, 600, 400];
+                
+                frequencies.forEach((freq, index) => {
+                    const soundKey = `sound${index + 1}`;
+                    mistakeSounds[soundKey] = () => {
+                        const oscillator = context.createOscillator();
+                        const gainNode = context.createGain();
+                        
+                        oscillator.connect(gainNode);
+                        gainNode.connect(context.destination);
+                        
+                        oscillator.frequency.setValueAtTime(freq, context.currentTime);
+                        oscillator.type = 'sine';
+                        
+                        gainNode.gain.setValueAtTime(0.1, context.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.2);
+                        
+                        oscillator.start(context.currentTime);
+                        oscillator.stop(context.currentTime + 0.2);
+                    };
+                });
+            } catch (error) {
+                console.log('Audio context not available');
+            }
+        }
+
+        // Play mistake sound
+        function playMistakeSound() {
+            if (mistakeSounds[currentMistakeSound]) {
+                mistakeSounds[currentMistakeSound]();
+            }
+        }
+
+        // Settings functions
+        function toggleSettings() {
+            const panel = document.getElementById('settingsPanel');
+            panel.classList.toggle('open');
+        }
+
+        function closeSettings() {
+            const panel = document.getElementById('settingsPanel');
+            panel.classList.remove('open');
+        }
+
+        function changeTheme() {
+            const theme = document.getElementById('themeSelect').value;
+            document.body.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+        }
+
+        function changeFontSize() {
+            const size = document.getElementById('fontSizeSlider').value;
+            document.getElementById('fontSizeValue').textContent = size + 'px';
+            document.getElementById('textDisplay').style.fontSize = size + 'px';
+            localStorage.setItem('fontSize', size);
+        }
+
+        function changeZoom() {
+            const zoom = document.getElementById('zoomSlider').value;
+            document.getElementById('zoomValue').textContent = zoom + '%';
+            document.body.style.zoom = zoom + '%';
+            localStorage.setItem('zoom', zoom);
+        }
+
+        function changeKeyboardSize() {
+            const size = document.getElementById('keyboardSizeSlider').value;
+            document.getElementById('keyboardSizeValue').textContent = Math.round(size * 100) + '%';
+            document.getElementById('keyboard').style.transform = `scale(${size})`;
+            localStorage.setItem('keyboardSize', size);
+        }
+
+        function changeMistakeSound() {
+            currentMistakeSound = document.getElementById('soundSelect').value;
+            localStorage.setItem('mistakeSound', currentMistakeSound);
+        }
+
+        function changeTextBoxRows() {
+            const rows = document.getElementById('textBoxRowsSlider').value;
+            document.getElementById('textBoxRowsValue').textContent = rows + ' rows';
+            const textDisplay = document.getElementById('textDisplay');
+            textDisplay.style.minHeight = (rows * 30) + 'px';
+            localStorage.setItem('textBoxRows', rows);
+        }
+
+        function changeKeyboardTheme() {
+            const theme = document.getElementById('keyboardThemeSelect').value;
+            const keyboard = document.getElementById('keyboard');
+            
+            // Remove all theme classes first
+            keyboard.classList.remove('gaming', 'retro', 'neon');
+            
+            // Add new theme class if not default
+            if (theme !== 'default') {
+                keyboard.classList.add(theme);
+            }
+            
+            localStorage.setItem('keyboardTheme', theme);
+        }
+
+        function toggleTouchTyping() {
+            touchTypingEnabled = document.getElementById('touchTypingToggle').checked;
+            const keyboard = document.getElementById('keyboard');
+            
+            if (touchTypingEnabled) {
+                keyboard.classList.add('touch-typing-enabled');
+                enableKeyboardClicks();
+            } else {
+                keyboard.classList.remove('touch-typing-enabled');
+                disableKeyboardClicks();
+            }
+            
+            localStorage.setItem('touchTypingEnabled', touchTypingEnabled);
+        }
+
+        function enableKeyboardClicks() {
+            const keys = document.querySelectorAll('.key');
+            keys.forEach(key => {
+                key.addEventListener('click', handleKeyClick);
+            });
+        }
+
+        function disableKeyboardClicks() {
+            const keys = document.querySelectorAll('.key');
+            keys.forEach(key => {
+                key.removeEventListener('click', handleKeyClick);
+            });
+        }
+
+        function handleKeyClick(event) {
+            const keyElement = event.target;
+            const keyData = keyElement.getAttribute('data-key');
+            
+            if (!keyData) return;
+            
+            let keyToType = '';
+            
+            // Handle special keys
+            if (keyData === 'space') {
+                keyToType = ' ';
+            } else if (keyData === 'backspace') {
+                // Handle backspace functionality
+                if (currentIndex > 0) {
+                    currentIndex--;
+                    const charElement = document.querySelector(`[data-index="${currentIndex}"]`);
+                    if (charElement) {
+                        charElement.classList.remove('correct', 'incorrect');
+                    }
+                    updateNextCharacterHighlight();
+                    updateFingerHint();
+                    updateStats();
+                }
+                return;
+            } else if (keyData === 'enter') {
+                keyToType = '\n';
+            } else if (keyData === 'tab') {
+                keyToType = '\t';
+            } else if (['shift', 'ctrl', 'alt', 'caps'].includes(keyData)) {
+                // Handle modifier keys
+                if (keyData === 'shift') {
+                    isShiftPressed = !isShiftPressed;
+                    updateKeyboardShift();
+                }
+                return;
+            } else {
+                // Handle regular keys
+                if (isShiftPressed) {
+                    // Handle shift combinations
+                    const shiftMap = {
+                        '1': '!', '2': '@', '3': '#', '4': '$', '5': '%',
+                        '6': '^', '7': '&', '8': '*', '9': '(', '0': ')',
+                        '-': '_', '=': '+', '[': '{', ']': '}', '\\': '|',
+                        ';': ':', "'": '"', ',': '<', '.': '>', '/': '?',
+                        '`': '~'
+                    };
+                    
+                    if (shiftMap[keyData]) {
+                        keyToType = shiftMap[keyData];
+                    } else if (keyData.match(/[a-z]/)) {
+                        keyToType = keyData.toUpperCase();
+                    } else {
+                        keyToType = keyData;
+                    }
+                } else {
+                    keyToType = keyData;
+                }
+            }
+            
+            // Simulate key press
+            if (keyToType) {
+                // Add visual feedback
+                keyElement.classList.add('active');
+                setTimeout(() => {
+                    keyElement.classList.remove('active');
+                }, 150);
+                
+                // Process the typed character
+                processTypedCharacter(keyToType);
+            }
+        }
+
+        function resetAllSettings() {
+            if (confirm('Are you sure you want to reset all settings to default values? This will clear all your customizations!')) {
+                // Clear all localStorage settings
+                localStorage.removeItem('theme');
+                localStorage.removeItem('fontSize');
+                localStorage.removeItem('zoom');
+                localStorage.removeItem('keyboardSize');
+                localStorage.removeItem('mistakeSound');
+                localStorage.removeItem('textBoxRows');
+                localStorage.removeItem('keyboardTheme');
+                localStorage.removeItem('touchTypingEnabled');
+                
+                // Reset to default values
+                document.body.setAttribute('data-theme', 'night');
+                document.getElementById('themeSelect').value = 'night';
+                
+                document.getElementById('fontSizeSlider').value = '35';
+                document.getElementById('fontSizeValue').textContent = '35px';
+                document.getElementById('textDisplay').style.fontSize = '35px';
+                
+                document.getElementById('zoomSlider').value = '130';
+                document.getElementById('zoomValue').textContent = '130%';
+                document.body.style.zoom = '130%';
+                
+                document.getElementById('keyboardSizeSlider').value = '1';
+                document.getElementById('keyboardSizeValue').textContent = '100%';
+                document.getElementById('keyboard').style.transform = 'scale(1)';
+                
+                document.getElementById('soundSelect').value = 'sound1';
+                currentMistakeSound = 'sound1';
+                
+                document.getElementById('textBoxRowsSlider').value = '1';
+                document.getElementById('textBoxRowsValue').textContent = '1 rows';
+                document.getElementById('textDisplay').style.minHeight = '30px';
+                
+                document.getElementById('keyboardThemeSelect').value = 'default';
+                const keyboard = document.getElementById('keyboard');
+                keyboard.classList.remove('gaming', 'retro', 'neon');
+                
+                document.getElementById('touchTypingToggle').checked = false;
+                touchTypingEnabled = false;
+                keyboard.classList.remove('touch-typing-enabled');
+                disableKeyboardClicks();
+                
+                alert('All settings have been reset to default values!');
+            }
+        }
+
+        // Load settings from localStorage
+        function loadSettings() {
+            const theme = localStorage.getItem('theme') || 'night';
+            const fontSize = localStorage.getItem('fontSize') || '35';
+            const zoom = localStorage.getItem('zoom') || '130';
+            const keyboardSize = localStorage.getItem('keyboardSize') || '1';
+            const mistakeSound = localStorage.getItem('mistakeSound') || 'sound1';
+            const textBoxRows = localStorage.getItem('textBoxRows') || '1';
+            const keyboardTheme = localStorage.getItem('keyboardTheme') || 'default';
+            const touchTyping = localStorage.getItem('touchTypingEnabled') === 'true';
+            
+            document.body.setAttribute('data-theme', theme);
+            document.getElementById('themeSelect').value = theme;
+            
+            document.getElementById('fontSizeSlider').value = fontSize;
+            document.getElementById('fontSizeValue').textContent = fontSize + 'px';
+            document.getElementById('textDisplay').style.fontSize = fontSize + 'px';
+            
+            document.getElementById('zoomSlider').value = zoom;
+            document.getElementById('zoomValue').textContent = zoom + '%';
+            document.body.style.zoom = zoom + '%';
+            
+            document.getElementById('keyboardSizeSlider').value = keyboardSize;
+            document.getElementById('keyboardSizeValue').textContent = Math.round(keyboardSize * 100) + '%';
+            document.getElementById('keyboard').style.transform = `scale(${keyboardSize})`;
+            
+            document.getElementById('soundSelect').value = mistakeSound;
+            currentMistakeSound = mistakeSound;
+            
+            document.getElementById('textBoxRowsSlider').value = textBoxRows;
+            document.getElementById('textBoxRowsValue').textContent = textBoxRows + ' rows';
+            document.getElementById('textDisplay').style.minHeight = (textBoxRows * 30) + 'px';
+            
+            document.getElementById('keyboardThemeSelect').value = keyboardTheme;
+            const keyboard = document.getElementById('keyboard');
+            keyboard.classList.remove('gaming', 'retro', 'neon');
+            if (keyboardTheme !== 'default') {
+                keyboard.classList.add(keyboardTheme);
+            }
+            
+            // Load touch typing setting
+            touchTypingEnabled = touchTyping;
+            document.getElementById('touchTypingToggle').checked = touchTyping;
+            if (touchTyping) {
+                keyboard.classList.add('touch-typing-enabled');
+                enableKeyboardClicks();
+            } else {
+                keyboard.classList.remove('touch-typing-enabled');
+                disableKeyboardClicks();
+            }
+        }
+
+        // Modal functions
+        function openLevelsModal() {
+            selectedLevel = null; // Reset selection when opening
+            document.getElementById('levelsModal').classList.add('open');
+            loadLevels();
+        }
+
+        function closeLevelsModal() {
+            selectedLevel = null; // Reset selection when closing
+            document.getElementById('levelsModal').classList.remove('open');
+        }
+
+        function openLessonsModal() {
+            selectedLesson = null; // Reset selection when opening
+            document.getElementById('lessonsModal').classList.add('open');
+            loadLessons();
+        }
+
+        function closeLessonsModal() {
+            selectedLesson = null; // Reset selection when closing
+            document.getElementById('lessonsModal').classList.remove('open');
+        }
+
+        // Load levels into modal
+        function loadLevels() {
+            const levels = JSON.parse(localStorage.getItem('customLevels')) || {...defaultLevels};
+            const grid = document.getElementById('levelsGrid');
+            grid.innerHTML = '';
+            
+            Object.keys(levels).forEach(levelKey => {
+                const level = levels[levelKey];
+                const card = document.createElement('div');
+                card.className = 'level-card';
+                if (levelKey === currentLevel) {
+                    card.classList.add('active');
+                }
+                if (levelKey === selectedLevel) {
+                    card.style.border = '3px solid #FF9800';
+                    card.style.backgroundColor = '#FFF3E0';
+                }
+                
+                // Add custom level indicator
+                const isCustom = !defaultLevels[levelKey];
+                card.innerHTML = `
+                    <h4>${level.name} ${isCustom ? '(Custom)' : ''}</h4>
+                    <p>${level.description}</p>
+                `;
+                
+                card.onclick = (e) => {
+                    e.stopPropagation();
+                    
+                    // Double-click to load level
+                    if (e.detail === 2) {
+                        currentLevel = levelKey;
+                        currentLesson = 1;
+                        loadLesson();
+                        closeLevelsModal();
+                    } else {
+                        // Single click to select
+                        selectedLevel = levelKey;
+                        loadLevels(); // Refresh to show selection
+                    }
+                };
+                
+                grid.appendChild(card);
+            });
+        }
+
+        // Load lessons into modal
+        function loadLessons() {
+            const lessons = JSON.parse(localStorage.getItem('customLessons')) || {...defaultLessons};
+            const grid = document.getElementById('lessonsGrid');
+            grid.innerHTML = '';
+            
+            const currentLevelLessons = lessons[currentLevel] || {};
+            
+            Object.keys(currentLevelLessons).forEach(lessonKey => {
+                const card = document.createElement('div');
+                card.className = 'lesson-card';
+                if (lessonKey === currentLesson || parseInt(lessonKey) === currentLesson) {
+                    card.classList.add('active');
+                }
+                if (lessonKey === selectedLesson) {
+                    card.style.border = '3px solid #FF9800';
+                    card.style.backgroundColor = '#FFF3E0';
+                }
+                
+                // Check if it's a custom lesson
+                const isCustom = !defaultLessons[currentLevel] || !defaultLessons[currentLevel][lessonKey];
+                const lessonText = currentLevelLessons[lessonKey];
+                const preview = lessonText.length > 30 ? lessonText.substring(0, 30) + '...' : lessonText;
+                
+                card.innerHTML = `
+                    <h4>Lesson ${lessonKey} ${isCustom ? '(Custom)' : ''}</h4>
+                    <p style="font-size: 12px; color: #666;">${preview}</p>
+                `;
+                
+                card.onclick = (e) => {
+                    e.stopPropagation();
+                    
+                    // Double-click to load lesson
+                    if (e.detail === 2) {
+                        currentLesson = lessonKey; // Keep as string for Y.T Course compatibility
+                        loadLesson();
+                        closeLessonsModal();
+                    } else {
+                        // Single click to select
+                        selectedLesson = lessonKey;
+                        loadLessons(); // Refresh to show selection
+                    }
+                };
+                
+                grid.appendChild(card);
+            });
+        }
+
+        // Custom level/lesson functions
+        let selectedLevel = null;
+        let selectedLesson = null;
+
+        function addCustomLevel() {
+            const name = prompt('Enter level name:');
+            const description = prompt('Enter level description:');
+            
+            if (name && description) {
+                const levels = JSON.parse(localStorage.getItem('customLevels')) || {...defaultLevels};
+                const key = name.toLowerCase().replace(/\s+/g, '_');
+                levels[key] = { name, description };
+                localStorage.setItem('customLevels', JSON.stringify(levels));
+                loadLevels();
+                alert('Level added successfully!');
+            }
+        }
+
+        function addCustomLesson() {
+            const text = prompt('Enter lesson text:');
+            
+            if (text) {
+                const lessons = JSON.parse(localStorage.getItem('customLessons')) || {...defaultLessons};
+                if (!lessons[currentLevel]) {
+                    lessons[currentLevel] = {};
+                }
+                
+                const lessonNumber = Object.keys(lessons[currentLevel]).length + 1;
+                lessons[currentLevel][lessonNumber] = text;
+                localStorage.setItem('customLessons', JSON.stringify(lessons));
+                loadLessons();
+                alert('Lesson added successfully!');
+            }
+        }
+
+        function editLevel() {
+            if (!selectedLevel) {
+                alert('Please select a level first by clicking on it!');
+                return;
+            }
+            
+            const levels = JSON.parse(localStorage.getItem('customLevels')) || {...defaultLevels};
+            const level = levels[selectedLevel];
+            
+            if (!level) {
+                alert('Level not found!');
+                return;
+            }
+            
+            const newName = prompt('Enter new level name:', level.name);
+            const newDescription = prompt('Enter new level description:', level.description);
+            
+            if (newName && newDescription) {
+                levels[selectedLevel] = { name: newName, description: newDescription };
+                localStorage.setItem('customLevels', JSON.stringify(levels));
+                loadLevels();
+                alert('Level updated successfully!');
+            }
+        }
+
+        function editLesson() {
+            if (!selectedLesson) {
+                alert('Please select a lesson first by clicking on it!');
+                return;
+            }
+            
+            const lessons = JSON.parse(localStorage.getItem('customLessons')) || {...defaultLessons};
+            const currentLevelLessons = lessons[currentLevel] || {};
+            const lessonText = currentLevelLessons[selectedLesson];
+            
+            if (!lessonText) {
+                alert('Lesson not found!');
+                return;
+            }
+            
+            const newText = prompt('Enter new lesson text:', lessonText);
+            
+            if (newText) {
+                lessons[currentLevel][selectedLesson] = newText;
+                localStorage.setItem('customLessons', JSON.stringify(lessons));
+                loadLessons();
+                alert('Lesson updated successfully!');
+            }
+        }
+
+        function deleteLevel() {
+            if (!selectedLevel) {
+                alert('Please select a level first by clicking on it!');
+                return;
+            }
+            
+            // Don't allow deletion of default levels
+            if (defaultLevels[selectedLevel]) {
+                alert('Cannot delete default levels! You can only delete custom levels.');
+                return;
+            }
+            
+            if (confirm(`Are you sure you want to delete the level "${selectedLevel}"?`)) {
+                const levels = JSON.parse(localStorage.getItem('customLevels')) || {...defaultLevels};
+                delete levels[selectedLevel];
+                localStorage.setItem('customLevels', JSON.stringify(levels));
+                
+                // If current level was deleted, switch to introduction
+                if (currentLevel === selectedLevel) {
+                    currentLevel = 'introduction';
+                    currentLesson = 1;
+                    loadLesson();
+                }
+                
+                selectedLevel = null;
+                loadLevels();
+                alert('Level deleted successfully!');
+            }
+        }
+
+        function deleteLesson() {
+            if (!selectedLesson) {
+                alert('Please select a lesson first by clicking on it!');
+                return;
+            }
+            
+            const lessons = JSON.parse(localStorage.getItem('customLessons')) || {...defaultLessons};
+            const currentLevelLessons = lessons[currentLevel] || {};
+            
+            // Don't allow deletion if it's the only lesson
+            if (Object.keys(currentLevelLessons).length <= 1) {
+                alert('Cannot delete the only lesson in a level!');
+                return;
+            }
+            
+            if (confirm(`Are you sure you want to delete lesson ${selectedLesson}?`)) {
+                delete lessons[currentLevel][selectedLesson];
+                
+                // Reorganize lesson numbers
+                const remainingLessons = Object.keys(lessons[currentLevel]).sort((a, b) => parseInt(a) - parseInt(b));
+                const newLessons = {};
+                remainingLessons.forEach((key, index) => {
+                    newLessons[index + 1] = lessons[currentLevel][key];
+                });
+                lessons[currentLevel] = newLessons;
+                
+                localStorage.setItem('customLessons', JSON.stringify(lessons));
+                
+                // If current lesson was deleted, switch to lesson 1
+                if (currentLesson === selectedLesson || currentLesson === parseInt(selectedLesson)) {
+                    currentLesson = 1;
+                    loadLesson();
+                }
+                
+                selectedLesson = null;
+                loadLessons();
+                alert('Lesson deleted successfully!');
+            }
+        }
+
+        function resetLevels() {
+            if (confirm('Reset all levels to default? This will remove all custom levels!')) {
+                localStorage.removeItem('customLevels');
+                selectedLevel = null;
+                
+                // Reset to default level if current level was custom
+                if (!defaultLevels[currentLevel]) {
+                    currentLevel = 'introduction';
+                    currentLesson = 1;
+                    loadLesson();
+                }
+                
+                loadLevels();
+                alert('All levels reset to default!');
+            }
+        }
+
+        function resetLessons() {
+            if (confirm('Reset all lessons to default? This will remove all custom lessons!')) {
+                localStorage.removeItem('customLessons');
+                selectedLesson = null;
+                currentLesson = 1;
+                loadLesson();
+                loadLessons();
+                alert('All lessons reset to default!');
+            }
+        }
+
+        // Lesson control functions
+        function restartLesson() {
+            loadLesson();
+        }
+
+        function nextLesson() {
+            const lessons = JSON.parse(localStorage.getItem('customLessons')) || defaultLessons;
+            const currentLevelLessons = lessons[currentLevel] || {};
+            const lessonKeys = Object.keys(currentLevelLessons);
+            
+            // Find current lesson index
+            let currentIndex = lessonKeys.indexOf(currentLesson.toString());
+            if (currentIndex === -1) {
+                currentIndex = lessonKeys.indexOf(currentLesson);
+            }
+            
+            if (currentIndex < lessonKeys.length - 1) {
+                currentLesson = lessonKeys[currentIndex + 1];
+                loadLesson();
+            } else {
+                alert('You have completed all lessons in this level!');
+            }
+        }
+
+        // Show statistics
+        function showStats() {
+            const stats = JSON.parse(localStorage.getItem('lessonStats')) || {};
+            const key = `${currentLevel}-${currentLesson}`;
+            const lessonStats = stats[key];
+            
+            if (lessonStats) {
+                alert(`Lesson Statistics:
+                Accuracy: ${lessonStats.accuracy}%
+                Speed: ${lessonStats.wpm} WPM
+                Errors: ${lessonStats.errors}
+                Time: ${Math.floor(lessonStats.time / 60)}:${Math.floor(lessonStats.time % 60).toString().padStart(2, '0')}
+                Date: ${new Date(lessonStats.date).toLocaleDateString()}`);
+            } else {
+                alert('No statistics available for this lesson yet.');
+            }
+        }
+
+        // Handle body clicks to close settings
+        function handleBodyClick(event) {
+            const settingsPanel = document.getElementById('settingsPanel');
+            const settingsBtn = document.querySelector('.settings-btn');
+            
+            if (!settingsPanel.contains(event.target) && !settingsBtn.contains(event.target)) {
+                settingsPanel.classList.remove('open');
+            }
+        }
+
+        // Fullscreen functionality
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                enterFullscreen();
+            } else {
+                exitFullscreen();
+            }
+        }
+
+        function enterFullscreen() {
+            const elem = document.documentElement;
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen();
+            } else if (elem.webkitRequestFullscreen) {
+                elem.webkitRequestFullscreen();
+            } else if (elem.msRequestFullscreen) {
+                elem.msRequestFullscreen();
+            }
+        }
+
+        function exitFullscreen() {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            } else if (document.msExitFullscreen) {
+                document.msExitFullscreen();
+            }
+        }
+
+
+
+        // Initialize the application when the page loads
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
