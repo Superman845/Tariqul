@@ -242,6 +242,10 @@
             transition: all 0.3s ease;
         }
 
+        .keyboard.hidden-touch-typing {
+            display: none;
+        }
+
         .keyboard-row {
             display: flex;
             justify-content: center;
@@ -486,28 +490,7 @@
             color: var(--text-color);
         }
 
-        .games-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 10px;
-            margin-top: 10px;
-        }
 
-        .game-btn {
-            padding: 10px;
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-
-        .game-btn:hover {
-            background: #45a049;
-            transform: translateY(-2px);
-        }
 
         .modal {
             position: fixed;
@@ -772,15 +755,18 @@
         </div>
 
         <div class="setting-group">
-            <label class="setting-label">🎮 Typing Games</label>
-            <div class="games-grid">
-                <button class="game-btn" onclick="startSpeedRace()">Speed Race</button>
-                <button class="game-btn" onclick="startWordCatch()">Word Catch</button>
-                <button class="game-btn" onclick="startTypingDuel()">Typing Duel</button>
-                <button class="game-btn" onclick="startAccuracyTest()">Accuracy Test</button>
-                <button class="game-btn" onclick="startEndlessMode()">Endless Mode</button>
-                <button class="game-btn" onclick="startKeyboardMaster()">Key Master</button>
+            <label class="setting-label">Touch Typing Mode</label>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <input type="checkbox" id="touchTypingToggle" onchange="toggleTouchTyping()" style="width: auto;">
+                <label for="touchTypingToggle">Enable Touch Typing (Hide Keyboard)</label>
             </div>
+        </div>
+
+        <div class="setting-group">
+            <label class="setting-label">Reset Settings</label>
+            <button class="control-btn" onclick="resetAllSettings()" style="width: 100%; background: var(--error-color); color: white;">
+                🔄 Reset All Settings to Default
+            </button>
         </div>
     </div>
 
@@ -848,6 +834,7 @@
             sound3: null
         };
         let currentMistakeSound = 'sound1';
+        let touchTypingEnabled = false;
 
         // Predefined levels and lessons
         const defaultLevels = {
@@ -1454,6 +1441,66 @@
             localStorage.setItem('keyboardTheme', theme);
         }
 
+        function toggleTouchTyping() {
+            touchTypingEnabled = document.getElementById('touchTypingToggle').checked;
+            const keyboard = document.getElementById('keyboard');
+            
+            if (touchTypingEnabled) {
+                keyboard.classList.add('hidden-touch-typing');
+            } else {
+                keyboard.classList.remove('hidden-touch-typing');
+            }
+            
+            localStorage.setItem('touchTypingEnabled', touchTypingEnabled);
+        }
+
+        function resetAllSettings() {
+            if (confirm('Are you sure you want to reset all settings to default values? This will clear all your customizations!')) {
+                // Clear all localStorage settings
+                localStorage.removeItem('theme');
+                localStorage.removeItem('fontSize');
+                localStorage.removeItem('zoom');
+                localStorage.removeItem('keyboardSize');
+                localStorage.removeItem('mistakeSound');
+                localStorage.removeItem('textBoxRows');
+                localStorage.removeItem('keyboardTheme');
+                localStorage.removeItem('touchTypingEnabled');
+                
+                // Reset to default values
+                document.body.setAttribute('data-theme', 'light');
+                document.getElementById('themeSelect').value = 'light';
+                
+                document.getElementById('fontSizeSlider').value = '35';
+                document.getElementById('fontSizeValue').textContent = '35px';
+                document.getElementById('textDisplay').style.fontSize = '35px';
+                
+                document.getElementById('zoomSlider').value = '130';
+                document.getElementById('zoomValue').textContent = '130%';
+                document.body.style.zoom = '130%';
+                
+                document.getElementById('keyboardSizeSlider').value = '1';
+                document.getElementById('keyboardSizeValue').textContent = '100%';
+                document.getElementById('keyboard').style.transform = 'scale(1)';
+                
+                document.getElementById('soundSelect').value = 'sound1';
+                currentMistakeSound = 'sound1';
+                
+                document.getElementById('textBoxRowsSlider').value = '3';
+                document.getElementById('textBoxRowsValue').textContent = '3 rows';
+                document.getElementById('textDisplay').style.minHeight = '90px';
+                
+                document.getElementById('keyboardThemeSelect').value = 'default';
+                const keyboard = document.getElementById('keyboard');
+                keyboard.classList.remove('gaming', 'retro', 'neon');
+                
+                document.getElementById('touchTypingToggle').checked = false;
+                touchTypingEnabled = false;
+                keyboard.classList.remove('hidden-touch-typing');
+                
+                alert('All settings have been reset to default values!');
+            }
+        }
+
         // Load settings from localStorage
         function loadSettings() {
             const theme = localStorage.getItem('theme') || 'light';
@@ -1463,6 +1510,7 @@
             const mistakeSound = localStorage.getItem('mistakeSound') || 'sound1';
             const textBoxRows = localStorage.getItem('textBoxRows') || '3';
             const keyboardTheme = localStorage.getItem('keyboardTheme') || 'default';
+            const touchTyping = localStorage.getItem('touchTypingEnabled') === 'true';
             
             document.body.setAttribute('data-theme', theme);
             document.getElementById('themeSelect').value = theme;
@@ -1491,6 +1539,15 @@
             keyboard.classList.remove('gaming', 'retro', 'neon');
             if (keyboardTheme !== 'default') {
                 keyboard.classList.add(keyboardTheme);
+            }
+            
+            // Load touch typing setting
+            touchTypingEnabled = touchTyping;
+            document.getElementById('touchTypingToggle').checked = touchTyping;
+            if (touchTyping) {
+                keyboard.classList.add('hidden-touch-typing');
+            } else {
+                keyboard.classList.remove('hidden-touch-typing');
             }
         }
 
@@ -1869,48 +1926,7 @@
             }
         }
 
-        // Game functions
-        function startSpeedRace() {
-            alert('🏁 Speed Race Game\n\nType as fast as you can!\nGoal: Achieve 60+ WPM\n\nClick OK to start!');
-            currentText = 'The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs. How vexingly quick daft zebras jump!';
-            loadLesson();
-            closeSettings();
-        }
 
-        function startWordCatch() {
-            alert('🎯 Word Catch Game\n\nCatch falling words by typing them!\nMiss 3 words and you lose!\n\nClick OK to start!');
-            currentText = 'apple banana cherry date elderberry fig grape honeydew kiwi lemon mango orange peach';
-            loadLesson();
-            closeSettings();
-        }
-
-        function startTypingDuel() {
-            alert('⚔️ Typing Duel Game\n\nRace against the computer!\nFirst to finish wins!\n\nClick OK to start!');
-            currentText = 'In the realm of digital warriors, only the fastest fingers survive the ultimate typing challenge.';
-            loadLesson();
-            closeSettings();
-        }
-
-        function startAccuracyTest() {
-            alert('🎯 Accuracy Test Game\n\nType with 100% accuracy!\nOne mistake and you restart!\n\nClick OK to start!');
-            currentText = 'Precision is the key to mastery. Every character matters in this ultimate accuracy challenge.';
-            loadLesson();
-            closeSettings();
-        }
-
-        function startEndlessMode() {
-            alert('♾️ Endless Mode Game\n\nType continuously without stopping!\nSee how long you can last!\n\nClick OK to start!');
-            currentText = 'Welcome to endless typing mode. The challenge never stops. Keep typing to survive. Your endurance will be tested.';
-            loadLesson();
-            closeSettings();
-        }
-
-        function startKeyboardMaster() {
-            alert('⌨️ Keyboard Master Game\n\nMaster all keys on the keyboard!\nNumbers, symbols, and letters!\n\nClick OK to start!');
-            currentText = 'Master123! @#$%^&*()_+ {}|:"<>? ~`-=[]\\;\',./';
-            loadLesson();
-            closeSettings();
-        }
 
         // Initialize the application when the page loads
         window.addEventListener('load', init);
