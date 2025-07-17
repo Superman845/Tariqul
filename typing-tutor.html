@@ -71,7 +71,7 @@
             color: var(--text-color);
             transition: all 0.3s ease;
             overflow-x: hidden;
-            zoom: 140%;
+            zoom: 130%;
         }
 
         .container {
@@ -168,7 +168,7 @@
             border-radius: 10px;
             background: var(--panel-bg);
             font-family: 'Courier New', monospace;
-            font-size: 24px;
+            font-size: 35px;
             line-height: 1.6;
             min-height: 100px;
             overflow-y: auto;
@@ -730,14 +730,14 @@
 
         <div class="setting-group">
             <label class="setting-label">Font Size</label>
-            <input type="range" class="setting-input" id="fontSizeSlider" min="12" max="40" value="24" oninput="changeFontSize()">
-            <span id="fontSizeValue">24px</span>
+            <input type="range" class="setting-input" id="fontSizeSlider" min="12" max="40" value="35" oninput="changeFontSize()">
+            <span id="fontSizeValue">35px</span>
         </div>
 
         <div class="setting-group">
             <label class="setting-label">Zoom Level</label>
-            <input type="range" class="setting-input" id="zoomSlider" min="50" max="200" value="140" oninput="changeZoom()">
-            <span id="zoomValue">140%</span>
+            <input type="range" class="setting-input" id="zoomSlider" min="50" max="200" value="130" oninput="changeZoom()">
+            <span id="zoomValue">130%</span>
         </div>
 
         <div class="setting-group">
@@ -1457,8 +1457,8 @@
         // Load settings from localStorage
         function loadSettings() {
             const theme = localStorage.getItem('theme') || 'light';
-            const fontSize = localStorage.getItem('fontSize') || '24';
-            const zoom = localStorage.getItem('zoom') || '140';
+            const fontSize = localStorage.getItem('fontSize') || '35';
+            const zoom = localStorage.getItem('zoom') || '130';
             const keyboardSize = localStorage.getItem('keyboardSize') || '1';
             const mistakeSound = localStorage.getItem('mistakeSound') || 'sound1';
             const textBoxRows = localStorage.getItem('textBoxRows') || '3';
