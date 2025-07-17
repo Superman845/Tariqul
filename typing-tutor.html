@@ -237,6 +237,78 @@
             border-radius: 10px;
             border: 2px solid var(--border-color);
             user-select: none;
+            transition: all 0.3s ease;
+        }
+
+        /* Keyboard Themes */
+        .keyboard.gaming {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: 2px solid #764ba2;
+        }
+
+        .keyboard.gaming .key {
+            background: linear-gradient(145deg, #667eea, #764ba2);
+            border: 2px solid #5a67d8;
+            color: white;
+            text-shadow: 0 0 5px rgba(255,255,255,0.5);
+        }
+
+        .keyboard.gaming .key:hover {
+            background: linear-gradient(145deg, #764ba2, #667eea);
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+        }
+
+        .keyboard.retro {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border: 2px solid #f5576c;
+        }
+
+        .keyboard.retro .key {
+            background: linear-gradient(145deg, #f093fb, #f5576c);
+            border: 2px solid #e91e63;
+            color: white;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+
+        .keyboard.retro .key:hover {
+            background: linear-gradient(145deg, #f5576c, #f093fb);
+            box-shadow: 0 0 10px rgba(240, 147, 251, 0.5);
+        }
+
+        .keyboard.neon {
+            background: #0a0a0a;
+            border: 2px solid #00ffff;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+        }
+
+        .keyboard.neon .key {
+            background: #1a1a1a;
+            border: 2px solid #00ffff;
+            color: #00ffff;
+            text-shadow: 0 0 10px #00ffff;
+            box-shadow: 0 0 5px rgba(0, 255, 255, 0.3);
+        }
+
+        .keyboard.neon .key:hover {
+            background: #00ffff;
+            color: #000;
+            text-shadow: none;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.8);
+        }
+
+        .keyboard.neon .key.active {
+            background: #ff00ff;
+            color: #000;
+            border-color: #ff00ff;
+            box-shadow: 0 0 15px rgba(255, 0, 255, 0.8);
+        }
+
+        .keyboard.neon .key.next {
+            background: #ffff00;
+            color: #000;
+            border-color: #ffff00;
+            box-shadow: 0 0 15px rgba(255, 255, 0, 0.8);
         }
 
         .keyboard-row {
@@ -544,6 +616,37 @@
             animation: pulse 2s infinite;
         }
 
+        .games-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: var(--bg-color);
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .game-btn {
+            padding: 10px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .game-btn:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+
         .hidden {
             display: none !important;
         }
@@ -644,14 +747,14 @@
 
         <div class="setting-group">
             <label class="setting-label">Font Size</label>
-            <input type="range" class="setting-input" id="fontSizeSlider" min="12" max="24" value="16" oninput="changeFontSize()">
-            <span id="fontSizeValue">16px</span>
+            <input type="range" class="setting-input" id="fontSizeSlider" min="12" max="40" value="24" oninput="changeFontSize()">
+            <span id="fontSizeValue">24px</span>
         </div>
 
         <div class="setting-group">
             <label class="setting-label">Zoom Level</label>
-            <input type="range" class="setting-input" id="zoomSlider" min="50" max="200" value="100" oninput="changeZoom()">
-            <span id="zoomValue">100%</span>
+            <input type="range" class="setting-input" id="zoomSlider" min="50" max="200" value="140" oninput="changeZoom()">
+            <span id="zoomValue">140%</span>
         </div>
 
         <div class="setting-group">
@@ -699,6 +802,18 @@
                 <span id="musicVolumeValue">30%</span>
             </div>
         </div>
+
+        <div class="setting-group">
+            <label class="setting-label">🎮 Typing Games</label>
+            <div class="games-grid">
+                <button class="game-btn" onclick="startSpeedRace()">Speed Race</button>
+                <button class="game-btn" onclick="startWordCatch()">Word Catch</button>
+                <button class="game-btn" onclick="startTypingDuel()">Typing Duel</button>
+                <button class="game-btn" onclick="startAccuracyTest()">Accuracy Test</button>
+                <button class="game-btn" onclick="startEndlessMode()">Endless Mode</button>
+                <button class="game-btn" onclick="startKeyboardMaster()">Key Master</button>
+            </div>
+        </div>
     </div>
 
     <!-- Levels Modal -->
@@ -744,9 +859,9 @@
     </div>
 
     <!-- Hidden Audio Elements -->
-    <audio id="backgroundMusic" loop>
-        <source id="musicSource" src="" type="audio/mpeg">
-    </audio>
+    <audio id="backgroundMusic1" loop></audio>
+    <audio id="backgroundMusic2" loop></audio>
+    <audio id="backgroundMusic3" loop></audio>
 
     <script>
         // Global variables
@@ -775,6 +890,8 @@
         let currentMusicTrack = 'none';
         let musicVolume = 0.3;
         let isMusicPlaying = false;
+        let audioContext = null;
+        let musicSources = {};
 
         // Predefined levels and lessons
         const defaultLevels = {
@@ -1403,8 +1520,8 @@
         // Load settings from localStorage
         function loadSettings() {
             const theme = localStorage.getItem('theme') || 'light';
-            const fontSize = localStorage.getItem('fontSize') || '16';
-            const zoom = localStorage.getItem('zoom') || '100';
+            const fontSize = localStorage.getItem('fontSize') || '24';
+            const zoom = localStorage.getItem('zoom') || '140';
             const keyboardSize = localStorage.getItem('keyboardSize') || '1';
             const mistakeSound = localStorage.getItem('mistakeSound') || 'sound1';
             const textBoxRows = localStorage.getItem('textBoxRows') || '3';
@@ -1666,34 +1783,43 @@
 
         // Background music functions
         function generateBackgroundMusic() {
-            backgroundMusic = document.getElementById('backgroundMusic');
-            
-            // Create data URLs for peaceful background music
-            const musicTracks = {
-                peaceful1: generatePeacefulPiano(),
-                peaceful2: generateNatureSounds(),
-                peaceful3: generateAmbientWaves()
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                
+                // Create proper background music tracks
+                createMusicTrack('peaceful1', generatePeacefulPiano());
+                createMusicTrack('peaceful2', generateNatureSounds());
+                createMusicTrack('peaceful3', generateAmbientWaves());
+                
+            } catch (error) {
+                console.log('Audio context not available');
+            }
+        }
+
+        function createMusicTrack(trackName, audioBuffer) {
+            musicSources[trackName] = {
+                buffer: audioBuffer,
+                source: null,
+                gainNode: null
             };
-            
-            // Store music tracks
-            window.musicTracks = musicTracks;
         }
 
         function generatePeacefulPiano() {
-            // Generate a peaceful piano melody using Web Audio API
-            const context = new (window.AudioContext || window.webkitAudioContext)();
-            const buffer = context.createBuffer(2, context.sampleRate * 30, context.sampleRate);
+            const sampleRate = audioContext.sampleRate;
+            const length = sampleRate * 10; // 10 seconds of audio
+            const buffer = audioContext.createBuffer(2, length, sampleRate);
             
             for (let channel = 0; channel < buffer.numberOfChannels; channel++) {
                 const channelData = buffer.getChannelData(channel);
-                for (let i = 0; i < channelData.length; i++) {
-                    const time = i / context.sampleRate;
-                    // Create a peaceful piano-like sound with harmonics
+                for (let i = 0; i < length; i++) {
+                    const time = i / sampleRate;
+                    // Create a peaceful piano melody with multiple harmonics
                     channelData[i] = (
-                        Math.sin(2 * Math.PI * 261.63 * time) * 0.3 * Math.exp(-time * 0.5) +
-                        Math.sin(2 * Math.PI * 329.63 * time) * 0.2 * Math.exp(-time * 0.5) +
-                        Math.sin(2 * Math.PI * 392.00 * time) * 0.1 * Math.exp(-time * 0.5)
-                    ) * (0.1 + 0.1 * Math.sin(0.5 * time));
+                        Math.sin(2 * Math.PI * 261.63 * time) * 0.2 * Math.exp(-time * 0.1) + // C4
+                        Math.sin(2 * Math.PI * 329.63 * time) * 0.15 * Math.exp(-time * 0.1) + // E4
+                        Math.sin(2 * Math.PI * 392.00 * time) * 0.1 * Math.exp(-time * 0.1) + // G4
+                        Math.sin(2 * Math.PI * 523.25 * time) * 0.05 * Math.exp(-time * 0.1)   // C5
+                    ) * (0.3 + 0.2 * Math.sin(0.1 * time)) * Math.sin(0.05 * time);
                 }
             }
             
@@ -1701,17 +1827,18 @@
         }
 
         function generateNatureSounds() {
-            // Generate nature sounds (rain/wind)
-            const context = new (window.AudioContext || window.webkitAudioContext)();
-            const buffer = context.createBuffer(2, context.sampleRate * 30, context.sampleRate);
+            const sampleRate = audioContext.sampleRate;
+            const length = sampleRate * 10;
+            const buffer = audioContext.createBuffer(2, length, sampleRate);
             
             for (let channel = 0; channel < buffer.numberOfChannels; channel++) {
                 const channelData = buffer.getChannelData(channel);
-                for (let i = 0; i < channelData.length; i++) {
-                    // Create white noise filtered for nature sounds
-                    channelData[i] = (Math.random() * 2 - 1) * 0.1 * 
-                        (1 + Math.sin(i * 0.0001)) * 
-                        (1 + Math.sin(i * 0.00005));
+                for (let i = 0; i < length; i++) {
+                    const time = i / sampleRate;
+                    // Create nature sounds with filtered white noise
+                    const noise = (Math.random() * 2 - 1) * 0.2;
+                    const filtered = noise * (1 + Math.sin(time * 0.5)) * (1 + Math.sin(time * 0.3));
+                    channelData[i] = filtered * (0.5 + 0.3 * Math.sin(0.1 * time));
                 }
             }
             
@@ -1719,20 +1846,20 @@
         }
 
         function generateAmbientWaves() {
-            // Generate ambient wave sounds
-            const context = new (window.AudioContext || window.webkitAudioContext)();
-            const buffer = context.createBuffer(2, context.sampleRate * 30, context.sampleRate);
+            const sampleRate = audioContext.sampleRate;
+            const length = sampleRate * 10;
+            const buffer = audioContext.createBuffer(2, length, sampleRate);
             
             for (let channel = 0; channel < buffer.numberOfChannels; channel++) {
                 const channelData = buffer.getChannelData(channel);
-                for (let i = 0; i < channelData.length; i++) {
-                    const time = i / context.sampleRate;
-                    // Create ambient wave-like sounds
+                for (let i = 0; i < length; i++) {
+                    const time = i / sampleRate;
+                    // Create ambient wave sounds
                     channelData[i] = (
-                        Math.sin(2 * Math.PI * 0.1 * time) * 0.3 +
-                        Math.sin(2 * Math.PI * 0.07 * time) * 0.2 +
-                        Math.sin(2 * Math.PI * 0.13 * time) * 0.1
-                    ) * 0.1 * (1 + Math.sin(0.05 * time));
+                        Math.sin(2 * Math.PI * 0.2 * time) * 0.3 +
+                        Math.sin(2 * Math.PI * 0.15 * time) * 0.2 +
+                        Math.sin(2 * Math.PI * 0.1 * time) * 0.1
+                    ) * 0.2 * (1 + Math.sin(0.05 * time));
                 }
             }
             
@@ -1740,49 +1867,54 @@
         }
 
         function playBackgroundMusic(trackName) {
-            if (!backgroundMusic || trackName === 'none') return;
+            if (!audioContext || trackName === 'none') return;
             
             try {
-                // Create a simple looping tone for demonstration
-                // In a real application, you would load actual audio files
-                const context = new (window.AudioContext || window.webkitAudioContext)();
-                const oscillator = context.createOscillator();
-                const gainNode = context.createGain();
+                // Stop current music if playing
+                stopBackgroundMusic();
                 
-                oscillator.connect(gainNode);
-                gainNode.connect(context.destination);
+                const track = musicSources[trackName];
+                if (!track) return;
                 
-                // Different frequencies for different tracks
-                const frequencies = {
-                    peaceful1: 220,
-                    peaceful2: 110,
-                    peaceful3: 165
-                };
+                // Create new source and gain node
+                track.source = audioContext.createBufferSource();
+                track.gainNode = audioContext.createGain();
                 
-                oscillator.frequency.setValueAtTime(frequencies[trackName], context.currentTime);
-                oscillator.type = 'sine';
-                gainNode.gain.setValueAtTime(musicVolume * 0.1, context.currentTime);
+                // Connect audio nodes
+                track.source.connect(track.gainNode);
+                track.gainNode.connect(audioContext.destination);
                 
-                oscillator.start();
+                // Set buffer and volume
+                track.source.buffer = track.buffer;
+                track.gainNode.gain.setValueAtTime(musicVolume, audioContext.currentTime);
                 
-                // Store reference for stopping
-                window.currentOscillator = oscillator;
-                window.currentGain = gainNode;
+                // Loop the audio
+                track.source.loop = true;
                 
+                // Start playing
+                track.source.start();
+                
+                // Store current track
+                backgroundMusic = track;
                 isMusicPlaying = true;
                 updateMusicButton();
                 
             } catch (error) {
-                console.log('Audio context not available');
+                console.log('Error playing background music:', error);
             }
         }
 
         function stopBackgroundMusic() {
-            if (window.currentOscillator) {
-                window.currentOscillator.stop();
-                window.currentOscillator = null;
-                window.currentGain = null;
+            if (backgroundMusic && backgroundMusic.source) {
+                try {
+                    backgroundMusic.source.stop();
+                    backgroundMusic.source = null;
+                    backgroundMusic.gainNode = null;
+                } catch (error) {
+                    console.log('Error stopping music:', error);
+                }
             }
+            backgroundMusic = null;
             isMusicPlaying = false;
             updateMusicButton();
         }
@@ -1806,6 +1938,43 @@
                 button.textContent = '🎵';
                 button.classList.remove('playing');
             }
+        }
+
+        // Game functions
+        function startSpeedRace() {
+            alert('🏁 Speed Race Game\n\nType as fast as you can!\nGoal: Achieve 60+ WPM\n\nClick OK to start!');
+            currentText = 'The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs. How vexingly quick daft zebras jump!';
+            loadLesson();
+        }
+
+        function startWordCatch() {
+            alert('🎯 Word Catch Game\n\nCatch falling words by typing them!\nMiss 3 words and you lose!\n\nClick OK to start!');
+            currentText = 'apple banana cherry date elderberry fig grape honeydew kiwi lemon mango orange peach';
+            loadLesson();
+        }
+
+        function startTypingDuel() {
+            alert('⚔️ Typing Duel Game\n\nRace against the computer!\nFirst to finish wins!\n\nClick OK to start!');
+            currentText = 'In the realm of digital warriors, only the fastest fingers survive the ultimate typing challenge.';
+            loadLesson();
+        }
+
+        function startAccuracyTest() {
+            alert('🎯 Accuracy Test Game\n\nType with 100% accuracy!\nOne mistake and you restart!\n\nClick OK to start!');
+            currentText = 'Precision is the key to mastery. Every character matters in this ultimate accuracy challenge.';
+            loadLesson();
+        }
+
+        function startEndlessMode() {
+            alert('♾️ Endless Mode Game\n\nType continuously without stopping!\nSee how long you can last!\n\nClick OK to start!');
+            currentText = 'Welcome to endless typing mode. The challenge never stops. Keep typing to survive. Your endurance will be tested.';
+            loadLesson();
+        }
+
+        function startKeyboardMaster() {
+            alert('⌨️ Keyboard Master Game\n\nMaster all keys on the keyboard!\nNumbers, symbols, and letters!\n\nClick OK to start!');
+            currentText = 'Master123! @#$%^&*()_+ {}|:"<>? ~`-=[]\\;\',./';
+            loadLesson();
         }
 
         // Initialize the application when the page loads
