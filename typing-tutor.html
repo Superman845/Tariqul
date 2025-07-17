@@ -788,7 +788,10 @@
     <div class="modal" id="levelsModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Select Level</h3>
+                <div>
+                    <h3>Select Level</h3>
+                    <p style="font-size: 12px; color: #666; margin-top: 5px;">Single-click to select, double-click to load</p>
+                </div>
                 <button class="close-btn" onclick="closeLevelsModal()">×</button>
             </div>
             <div class="custom-controls">
@@ -805,7 +808,10 @@
     <div class="modal" id="lessonsModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Select Lesson</h3>
+                <div>
+                    <h3>Select Lesson</h3>
+                    <p style="font-size: 12px; color: #666; margin-top: 5px;">Single-click to select, double-click to load</p>
+                </div>
                 <button class="close-btn" onclick="closeLessonsModal()">×</button>
             </div>
             <div class="custom-controls">
@@ -1490,26 +1496,30 @@
 
         // Modal functions
         function openLevelsModal() {
+            selectedLevel = null; // Reset selection when opening
             document.getElementById('levelsModal').classList.add('open');
             loadLevels();
         }
 
         function closeLevelsModal() {
+            selectedLevel = null; // Reset selection when closing
             document.getElementById('levelsModal').classList.remove('open');
         }
 
         function openLessonsModal() {
+            selectedLesson = null; // Reset selection when opening
             document.getElementById('lessonsModal').classList.add('open');
             loadLessons();
         }
 
         function closeLessonsModal() {
+            selectedLesson = null; // Reset selection when closing
             document.getElementById('lessonsModal').classList.remove('open');
         }
 
         // Load levels into modal
         function loadLevels() {
-            const levels = JSON.parse(localStorage.getItem('customLevels')) || defaultLevels;
+            const levels = JSON.parse(localStorage.getItem('customLevels')) || {...defaultLevels};
             const grid = document.getElementById('levelsGrid');
             grid.innerHTML = '';
             
@@ -1520,17 +1530,32 @@
                 if (levelKey === currentLevel) {
                     card.classList.add('active');
                 }
+                if (levelKey === selectedLevel) {
+                    card.style.border = '3px solid #FF9800';
+                    card.style.backgroundColor = '#FFF3E0';
+                }
                 
+                // Add custom level indicator
+                const isCustom = !defaultLevels[levelKey];
                 card.innerHTML = `
-                    <h4>${level.name}</h4>
+                    <h4>${level.name} ${isCustom ? '(Custom)' : ''}</h4>
                     <p>${level.description}</p>
                 `;
                 
-                card.onclick = () => {
-                    currentLevel = levelKey;
-                    currentLesson = 1;
-                    loadLesson();
-                    closeLevelsModal();
+                card.onclick = (e) => {
+                    e.stopPropagation();
+                    
+                    // Double-click to load level
+                    if (e.detail === 2) {
+                        currentLevel = levelKey;
+                        currentLesson = 1;
+                        loadLesson();
+                        closeLevelsModal();
+                    } else {
+                        // Single click to select
+                        selectedLevel = levelKey;
+                        loadLevels(); // Refresh to show selection
+                    }
                 };
                 
                 grid.appendChild(card);
@@ -1539,7 +1564,7 @@
 
         // Load lessons into modal
         function loadLessons() {
-            const lessons = JSON.parse(localStorage.getItem('customLessons')) || defaultLessons;
+            const lessons = JSON.parse(localStorage.getItem('customLessons')) || {...defaultLessons};
             const grid = document.getElementById('lessonsGrid');
             grid.innerHTML = '';
             
@@ -1551,13 +1576,34 @@
                 if (parseInt(lessonKey) === currentLesson) {
                     card.classList.add('active');
                 }
+                if (lessonKey === selectedLesson) {
+                    card.style.border = '3px solid #FF9800';
+                    card.style.backgroundColor = '#FFF3E0';
+                }
                 
-                card.innerHTML = `<h4>Lesson ${lessonKey}</h4>`;
+                // Check if it's a custom lesson
+                const isCustom = !defaultLessons[currentLevel] || !defaultLessons[currentLevel][lessonKey];
+                const lessonText = currentLevelLessons[lessonKey];
+                const preview = lessonText.length > 30 ? lessonText.substring(0, 30) + '...' : lessonText;
                 
-                card.onclick = () => {
-                    currentLesson = parseInt(lessonKey);
-                    loadLesson();
-                    closeLessonsModal();
+                card.innerHTML = `
+                    <h4>Lesson ${lessonKey} ${isCustom ? '(Custom)' : ''}</h4>
+                    <p style="font-size: 12px; color: #666;">${preview}</p>
+                `;
+                
+                card.onclick = (e) => {
+                    e.stopPropagation();
+                    
+                    // Double-click to load lesson
+                    if (e.detail === 2) {
+                        currentLesson = parseInt(lessonKey);
+                        loadLesson();
+                        closeLessonsModal();
+                    } else {
+                        // Single click to select
+                        selectedLesson = lessonKey;
+                        loadLessons(); // Refresh to show selection
+                    }
                 };
                 
                 grid.appendChild(card);
@@ -1565,16 +1611,20 @@
         }
 
         // Custom level/lesson functions
+        let selectedLevel = null;
+        let selectedLesson = null;
+
         function addCustomLevel() {
             const name = prompt('Enter level name:');
             const description = prompt('Enter level description:');
             
             if (name && description) {
-                const levels = JSON.parse(localStorage.getItem('customLevels')) || defaultLevels;
+                const levels = JSON.parse(localStorage.getItem('customLevels')) || {...defaultLevels};
                 const key = name.toLowerCase().replace(/\s+/g, '_');
                 levels[key] = { name, description };
                 localStorage.setItem('customLevels', JSON.stringify(levels));
                 loadLevels();
+                alert('Level added successfully!');
             }
         }
 
@@ -1582,7 +1632,7 @@
             const text = prompt('Enter lesson text:');
             
             if (text) {
-                const lessons = JSON.parse(localStorage.getItem('customLessons')) || defaultLessons;
+                const lessons = JSON.parse(localStorage.getItem('customLessons')) || {...defaultLessons};
                 if (!lessons[currentLevel]) {
                     lessons[currentLevel] = {};
                 }
@@ -1591,36 +1641,155 @@
                 lessons[currentLevel][lessonNumber] = text;
                 localStorage.setItem('customLessons', JSON.stringify(lessons));
                 loadLessons();
+                alert('Lesson added successfully!');
             }
         }
 
         function editLevel() {
-            alert('Edit level functionality - Select a level and modify its properties');
+            if (!selectedLevel) {
+                alert('Please select a level first by clicking on it!');
+                return;
+            }
+            
+            const levels = JSON.parse(localStorage.getItem('customLevels')) || {...defaultLevels};
+            const level = levels[selectedLevel];
+            
+            if (!level) {
+                alert('Level not found!');
+                return;
+            }
+            
+            const newName = prompt('Enter new level name:', level.name);
+            const newDescription = prompt('Enter new level description:', level.description);
+            
+            if (newName && newDescription) {
+                levels[selectedLevel] = { name: newName, description: newDescription };
+                localStorage.setItem('customLevels', JSON.stringify(levels));
+                loadLevels();
+                alert('Level updated successfully!');
+            }
         }
 
         function editLesson() {
-            alert('Edit lesson functionality - Select a lesson and modify its text');
+            if (!selectedLesson) {
+                alert('Please select a lesson first by clicking on it!');
+                return;
+            }
+            
+            const lessons = JSON.parse(localStorage.getItem('customLessons')) || {...defaultLessons};
+            const currentLevelLessons = lessons[currentLevel] || {};
+            const lessonText = currentLevelLessons[selectedLesson];
+            
+            if (!lessonText) {
+                alert('Lesson not found!');
+                return;
+            }
+            
+            const newText = prompt('Enter new lesson text:', lessonText);
+            
+            if (newText) {
+                lessons[currentLevel][selectedLesson] = newText;
+                localStorage.setItem('customLessons', JSON.stringify(lessons));
+                loadLessons();
+                alert('Lesson updated successfully!');
+            }
         }
 
         function deleteLevel() {
-            alert('Delete level functionality - Select a level to remove');
+            if (!selectedLevel) {
+                alert('Please select a level first by clicking on it!');
+                return;
+            }
+            
+            // Don't allow deletion of default levels
+            if (defaultLevels[selectedLevel]) {
+                alert('Cannot delete default levels! You can only delete custom levels.');
+                return;
+            }
+            
+            if (confirm(`Are you sure you want to delete the level "${selectedLevel}"?`)) {
+                const levels = JSON.parse(localStorage.getItem('customLevels')) || {...defaultLevels};
+                delete levels[selectedLevel];
+                localStorage.setItem('customLevels', JSON.stringify(levels));
+                
+                // If current level was deleted, switch to introduction
+                if (currentLevel === selectedLevel) {
+                    currentLevel = 'introduction';
+                    currentLesson = 1;
+                    loadLesson();
+                }
+                
+                selectedLevel = null;
+                loadLevels();
+                alert('Level deleted successfully!');
+            }
         }
 
         function deleteLesson() {
-            alert('Delete lesson functionality - Select a lesson to remove');
+            if (!selectedLesson) {
+                alert('Please select a lesson first by clicking on it!');
+                return;
+            }
+            
+            const lessons = JSON.parse(localStorage.getItem('customLessons')) || {...defaultLessons};
+            const currentLevelLessons = lessons[currentLevel] || {};
+            
+            // Don't allow deletion if it's the only lesson
+            if (Object.keys(currentLevelLessons).length <= 1) {
+                alert('Cannot delete the only lesson in a level!');
+                return;
+            }
+            
+            if (confirm(`Are you sure you want to delete lesson ${selectedLesson}?`)) {
+                delete lessons[currentLevel][selectedLesson];
+                
+                // Reorganize lesson numbers
+                const remainingLessons = Object.keys(lessons[currentLevel]).sort((a, b) => parseInt(a) - parseInt(b));
+                const newLessons = {};
+                remainingLessons.forEach((key, index) => {
+                    newLessons[index + 1] = lessons[currentLevel][key];
+                });
+                lessons[currentLevel] = newLessons;
+                
+                localStorage.setItem('customLessons', JSON.stringify(lessons));
+                
+                // If current lesson was deleted, switch to lesson 1
+                if (currentLesson === parseInt(selectedLesson)) {
+                    currentLesson = 1;
+                    loadLesson();
+                }
+                
+                selectedLesson = null;
+                loadLessons();
+                alert('Lesson deleted successfully!');
+            }
         }
 
         function resetLevels() {
-            if (confirm('Reset all levels to default?')) {
+            if (confirm('Reset all levels to default? This will remove all custom levels!')) {
                 localStorage.removeItem('customLevels');
+                selectedLevel = null;
+                
+                // Reset to default level if current level was custom
+                if (!defaultLevels[currentLevel]) {
+                    currentLevel = 'introduction';
+                    currentLesson = 1;
+                    loadLesson();
+                }
+                
                 loadLevels();
+                alert('All levels reset to default!');
             }
         }
 
         function resetLessons() {
-            if (confirm('Reset all lessons to default?')) {
+            if (confirm('Reset all lessons to default? This will remove all custom lessons!')) {
                 localStorage.removeItem('customLessons');
+                selectedLesson = null;
+                currentLesson = 1;
+                loadLesson();
                 loadLessons();
+                alert('All lessons reset to default!');
             }
         }
 
