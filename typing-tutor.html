@@ -71,6 +71,7 @@
             color: var(--text-color);
             transition: all 0.3s ease;
             overflow-x: hidden;
+            zoom: 140%;
         }
 
         .container {
@@ -329,6 +330,18 @@
             box-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
         }
 
+        .keyboard.gaming .key.active {
+            background: linear-gradient(145deg, #4CAF50, #45a049);
+            color: white;
+            box-shadow: 0 0 15px rgba(76, 175, 80, 0.8);
+        }
+
+        .keyboard.gaming .key.next {
+            background: linear-gradient(145deg, #2196F3, #1976D2);
+            color: white;
+            box-shadow: 0 0 15px rgba(33, 150, 243, 0.8);
+        }
+
         .keyboard.retro {
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             border: 2px solid #f5576c;
@@ -345,6 +358,18 @@
         .keyboard.retro .key:hover {
             background: linear-gradient(145deg, #f5576c, #f093fb);
             box-shadow: 0 0 10px rgba(240, 147, 251, 0.5);
+        }
+
+        .keyboard.retro .key.active {
+            background: linear-gradient(145deg, #4CAF50, #45a049);
+            color: white;
+            box-shadow: 0 0 15px rgba(76, 175, 80, 0.8);
+        }
+
+        .keyboard.retro .key.next {
+            background: linear-gradient(145deg, #2196F3, #1976D2);
+            color: white;
+            box-shadow: 0 0 15px rgba(33, 150, 243, 0.8);
         }
 
         .keyboard.neon {
@@ -369,17 +394,17 @@
         }
 
         .keyboard.neon .key.active {
-            background: #ff00ff;
+            background: #4CAF50;
             color: #000;
-            border-color: #ff00ff;
-            box-shadow: 0 0 15px rgba(255, 0, 255, 0.8);
+            border-color: #4CAF50;
+            box-shadow: 0 0 15px rgba(76, 175, 80, 0.8);
         }
 
         .keyboard.neon .key.next {
-            background: #ffff00;
+            background: #2196F3;
             color: #000;
-            border-color: #ffff00;
-            box-shadow: 0 0 15px rgba(255, 255, 0, 0.8);
+            border-color: #2196F3;
+            box-shadow: 0 0 15px rgba(33, 150, 243, 0.8);
         }
 
         .settings-panel {
@@ -459,14 +484,6 @@
             border-radius: 3px;
             background: var(--bg-color);
             color: var(--text-color);
-        }
-
-        .games-section {
-            margin-top: 20px;
-            padding: 15px;
-            background: var(--bg-color);
-            border-radius: 5px;
-            border: 1px solid var(--border-color);
         }
 
         .games-grid {
@@ -613,8 +630,6 @@
             transform: scale(1.1);
         }
 
-
-
         .hidden {
             display: none !important;
         }
@@ -756,8 +771,6 @@
             </select>
         </div>
 
-
-
         <div class="setting-group">
             <label class="setting-label">🎮 Typing Games</label>
             <div class="games-grid">
@@ -808,8 +821,6 @@
     <!-- Fullscreen Button -->
     <button class="fullscreen-btn" onclick="toggleFullscreen()">⛶</button>
 
-
-
     <script>
         // Global variables
         let currentLevel = 'introduction';
@@ -831,8 +842,6 @@
             sound3: null
         };
         let currentMistakeSound = 'sound1';
-        
-
 
         // Predefined levels and lessons
         const defaultLevels = {
@@ -952,8 +961,6 @@
                 enterFullscreen();
             }, 100);
         }
-
-
 
         // Create virtual keyboard
         function createKeyboard() {
@@ -1375,8 +1382,6 @@
             }
         }
 
-
-
         // Settings functions
         function toggleSettings() {
             const panel = document.getElementById('settingsPanel');
@@ -1432,7 +1437,7 @@
             const theme = document.getElementById('keyboardThemeSelect').value;
             const keyboard = document.getElementById('keyboard');
             
-            // Remove all theme classes
+            // Remove all theme classes first
             keyboard.classList.remove('gaming', 'retro', 'neon');
             
             // Add new theme class if not default
@@ -1442,8 +1447,6 @@
             
             localStorage.setItem('keyboardTheme', theme);
         }
-
-
 
         // Load settings from localStorage
         function loadSettings() {
