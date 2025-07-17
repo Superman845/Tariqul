@@ -74,6 +74,10 @@
             zoom: 130%;
         }
 
+        [data-theme="night"] body {
+            background-color: var(--bg-color);
+        }
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -170,7 +174,7 @@
             font-family: 'Courier New', monospace;
             font-size: 35px;
             line-height: 1.6;
-            min-height: 100px;
+            min-height: 30px;
             overflow-y: auto;
             resize: vertical;
         }
@@ -242,8 +246,15 @@
             transition: all 0.3s ease;
         }
 
-        .keyboard.hidden-touch-typing {
-            display: none;
+        .keyboard.touch-typing-enabled .key {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .keyboard.touch-typing-enabled .key:hover {
+            background: var(--secondary-color);
+            color: white;
+            transform: translateY(-2px);
         }
 
         .keyboard-row {
@@ -650,7 +661,7 @@
         }
     </style>
 </head>
-<body data-theme="light">
+<body data-theme="night">
     <div class="container">
         <div class="header">
             <div class="level-selector">
@@ -705,7 +716,7 @@
             <select class="setting-select" id="themeSelect" onchange="changeTheme()">
                 <option value="light">Light</option>
                 <option value="dark">Dark</option>
-                <option value="night">Night</option>
+                <option value="night" selected>Night</option>
                 <option value="blue">Blue</option>
                 <option value="green">Green</option>
             </select>
@@ -740,8 +751,8 @@
 
         <div class="setting-group">
             <label class="setting-label">Text Box Rows</label>
-            <input type="range" class="setting-input" id="textBoxRowsSlider" min="1" max="5" value="3" oninput="changeTextBoxRows()">
-            <span id="textBoxRowsValue">3 rows</span>
+            <input type="range" class="setting-input" id="textBoxRowsSlider" min="1" max="5" value="1" oninput="changeTextBoxRows()">
+            <span id="textBoxRowsValue">1 rows</span>
         </div>
 
         <div class="setting-group">
@@ -758,7 +769,7 @@
             <label class="setting-label">Touch Typing Mode</label>
             <div style="display: flex; align-items: center; gap: 10px;">
                 <input type="checkbox" id="touchTypingToggle" onchange="toggleTouchTyping()" style="width: auto;">
-                <label for="touchTypingToggle">Enable Touch Typing (Hide Keyboard)</label>
+                <label for="touchTypingToggle">Enable Touch Typing (Clickable Keyboard)</label>
             </div>
         </div>
 
@@ -1446,12 +1457,100 @@
             const keyboard = document.getElementById('keyboard');
             
             if (touchTypingEnabled) {
-                keyboard.classList.add('hidden-touch-typing');
+                keyboard.classList.add('touch-typing-enabled');
+                enableKeyboardClicks();
             } else {
-                keyboard.classList.remove('hidden-touch-typing');
+                keyboard.classList.remove('touch-typing-enabled');
+                disableKeyboardClicks();
             }
             
             localStorage.setItem('touchTypingEnabled', touchTypingEnabled);
+        }
+
+        function enableKeyboardClicks() {
+            const keys = document.querySelectorAll('.key');
+            keys.forEach(key => {
+                key.addEventListener('click', handleKeyClick);
+            });
+        }
+
+        function disableKeyboardClicks() {
+            const keys = document.querySelectorAll('.key');
+            keys.forEach(key => {
+                key.removeEventListener('click', handleKeyClick);
+            });
+        }
+
+        function handleKeyClick(event) {
+            const keyElement = event.target;
+            const keyData = keyElement.getAttribute('data-key');
+            
+            if (!keyData) return;
+            
+            let keyToType = '';
+            
+            // Handle special keys
+            if (keyData === 'space') {
+                keyToType = ' ';
+            } else if (keyData === 'backspace') {
+                // Handle backspace functionality
+                if (currentIndex > 0) {
+                    currentIndex--;
+                    const charElement = document.querySelector(`[data-index="${currentIndex}"]`);
+                    if (charElement) {
+                        charElement.classList.remove('correct', 'incorrect');
+                    }
+                    updateNextCharacterHighlight();
+                    updateFingerHint();
+                    updateStats();
+                }
+                return;
+            } else if (keyData === 'enter') {
+                keyToType = '\n';
+            } else if (keyData === 'tab') {
+                keyToType = '\t';
+            } else if (['shift', 'ctrl', 'alt', 'caps'].includes(keyData)) {
+                // Handle modifier keys
+                if (keyData === 'shift') {
+                    isShiftPressed = !isShiftPressed;
+                    updateKeyboardShift();
+                }
+                return;
+            } else {
+                // Handle regular keys
+                if (isShiftPressed) {
+                    // Handle shift combinations
+                    const shiftMap = {
+                        '1': '!', '2': '@', '3': '#', '4': '$', '5': '%',
+                        '6': '^', '7': '&', '8': '*', '9': '(', '0': ')',
+                        '-': '_', '=': '+', '[': '{', ']': '}', '\\': '|',
+                        ';': ':', "'": '"', ',': '<', '.': '>', '/': '?',
+                        '`': '~'
+                    };
+                    
+                    if (shiftMap[keyData]) {
+                        keyToType = shiftMap[keyData];
+                    } else if (keyData.match(/[a-z]/)) {
+                        keyToType = keyData.toUpperCase();
+                    } else {
+                        keyToType = keyData;
+                    }
+                } else {
+                    keyToType = keyData;
+                }
+            }
+            
+            // Simulate key press
+            if (keyToType) {
+                // Add visual feedback
+                keyElement.classList.add('active');
+                setTimeout(() => {
+                    keyElement.classList.remove('active');
+                }, 150);
+                
+                // Process the typed character
+                processTypedCharacter(keyToType);
+            }
         }
 
         function resetAllSettings() {
@@ -1467,8 +1566,8 @@
                 localStorage.removeItem('touchTypingEnabled');
                 
                 // Reset to default values
-                document.body.setAttribute('data-theme', 'light');
-                document.getElementById('themeSelect').value = 'light';
+                document.body.setAttribute('data-theme', 'night');
+                document.getElementById('themeSelect').value = 'night';
                 
                 document.getElementById('fontSizeSlider').value = '35';
                 document.getElementById('fontSizeValue').textContent = '35px';
@@ -1485,9 +1584,9 @@
                 document.getElementById('soundSelect').value = 'sound1';
                 currentMistakeSound = 'sound1';
                 
-                document.getElementById('textBoxRowsSlider').value = '3';
-                document.getElementById('textBoxRowsValue').textContent = '3 rows';
-                document.getElementById('textDisplay').style.minHeight = '90px';
+                document.getElementById('textBoxRowsSlider').value = '1';
+                document.getElementById('textBoxRowsValue').textContent = '1 rows';
+                document.getElementById('textDisplay').style.minHeight = '30px';
                 
                 document.getElementById('keyboardThemeSelect').value = 'default';
                 const keyboard = document.getElementById('keyboard');
@@ -1495,7 +1594,8 @@
                 
                 document.getElementById('touchTypingToggle').checked = false;
                 touchTypingEnabled = false;
-                keyboard.classList.remove('hidden-touch-typing');
+                keyboard.classList.remove('touch-typing-enabled');
+                disableKeyboardClicks();
                 
                 alert('All settings have been reset to default values!');
             }
@@ -1503,12 +1603,12 @@
 
         // Load settings from localStorage
         function loadSettings() {
-            const theme = localStorage.getItem('theme') || 'light';
+            const theme = localStorage.getItem('theme') || 'night';
             const fontSize = localStorage.getItem('fontSize') || '35';
             const zoom = localStorage.getItem('zoom') || '130';
             const keyboardSize = localStorage.getItem('keyboardSize') || '1';
             const mistakeSound = localStorage.getItem('mistakeSound') || 'sound1';
-            const textBoxRows = localStorage.getItem('textBoxRows') || '3';
+            const textBoxRows = localStorage.getItem('textBoxRows') || '1';
             const keyboardTheme = localStorage.getItem('keyboardTheme') || 'default';
             const touchTyping = localStorage.getItem('touchTypingEnabled') === 'true';
             
@@ -1545,9 +1645,11 @@
             touchTypingEnabled = touchTyping;
             document.getElementById('touchTypingToggle').checked = touchTyping;
             if (touchTyping) {
-                keyboard.classList.add('hidden-touch-typing');
+                keyboard.classList.add('touch-typing-enabled');
+                enableKeyboardClicks();
             } else {
-                keyboard.classList.remove('hidden-touch-typing');
+                keyboard.classList.remove('touch-typing-enabled');
+                disableKeyboardClicks();
             }
         }
 
