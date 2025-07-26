@@ -24,6 +24,8 @@ class TypingTutor {
         
         // Settings
         this.settings = this.loadSettings();
+        this.zoomLocked = false;
+        this.navbarVisible = true;
         
         // Profiles
         this.currentProfile = this.loadCurrentProfile();
@@ -101,11 +103,26 @@ class TypingTutor {
     }
 
     setupEventListeners() {
+        // Navigation toggle
+        document.getElementById('navToggleBtn').addEventListener('click', () => this.toggleNavbar());
+        
         // Navigation buttons
-        document.getElementById('lessonsBtn').addEventListener('click', () => this.togglePanel('lessonsPanel'));
-        document.getElementById('settingsBtn').addEventListener('click', () => this.togglePanel('settingsPanel'));
-        document.getElementById('progressBtn').addEventListener('click', () => this.togglePanel('progressPanel'));
-        document.getElementById('profileBtn').addEventListener('click', () => this.togglePanel('profilePanel'));
+        document.getElementById('lessonsBtn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.togglePanel('lessonsPanel');
+        });
+        document.getElementById('settingsBtn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.togglePanel('settingsPanel');
+        });
+        document.getElementById('progressBtn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.togglePanel('progressPanel');
+        });
+        document.getElementById('profileBtn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.togglePanel('profilePanel');
+        });
         document.getElementById('fullscreenBtn').addEventListener('click', () => this.toggleFullscreen());
         document.getElementById('shortcutsBtn').addEventListener('click', () => this.toggleModal('shortcutsModal'));
         
@@ -119,6 +136,7 @@ class TypingTutor {
         // Close buttons
         document.querySelectorAll('.close-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
+                e.stopPropagation();
                 const panel = e.target.closest('.panel');
                 const modal = e.target.closest('.modal');
                 if (panel) this.closePanel(panel.id);
@@ -991,7 +1009,8 @@ class TypingTutor {
             fingerGuide: true,
             ghostTyping: false,
             sound: true,
-            vibration: true
+            vibration: true,
+            zoomLocked: false
         };
         
         const saved = localStorage.getItem('typingTutorSettings');
@@ -1042,6 +1061,16 @@ class TypingTutor {
         document.getElementById('zoomSlider').value = this.settings.zoom;
         document.getElementById('zoomValue').textContent = `${Math.round(this.settings.zoom * 100)}%`;
         
+        // Update zoom lock button
+        const zoomLockBtn = document.getElementById('zoomLockBtn');
+        if (this.settings.zoomLocked) {
+            zoomLockBtn.textContent = '🔒 Locked';
+            zoomLockBtn.classList.add('locked');
+        } else {
+            zoomLockBtn.textContent = '🔓 Unlock Zoom';
+            zoomLockBtn.classList.remove('locked');
+        }
+        
         document.getElementById('themeSelect').value = this.settings.theme;
         document.getElementById('showKeyboardToggle').checked = this.settings.showKeyboard;
         document.getElementById('keyHighlightToggle').checked = this.settings.keyHighlight;
@@ -1063,10 +1092,21 @@ class TypingTutor {
         
         // Zoom
         document.getElementById('zoomSlider').addEventListener('input', (e) => {
+            if (this.settings.zoomLocked) {
+                e.target.value = this.settings.zoom;
+                this.showZoomIndicator('Zoom is locked!');
+                return;
+            }
             this.settings.zoom = parseFloat(e.target.value);
             document.getElementById('zoomValue').textContent = `${Math.round(this.settings.zoom * 100)}%`;
             this.applySettings();
             this.saveSettings();
+            this.showZoomIndicator(`${Math.round(this.settings.zoom * 100)}%`);
+        });
+        
+        // Zoom lock
+        document.getElementById('zoomLockBtn').addEventListener('click', () => {
+            this.toggleZoomLock();
         });
         
         // Theme
@@ -1468,6 +1508,8 @@ class TypingTutor {
     
     togglePanel(panelId) {
         const panel = document.getElementById(panelId);
+        if (!panel) return;
+        
         const isOpen = panel.classList.contains('open');
         
         // Close all panels first
@@ -1478,6 +1520,7 @@ class TypingTutor {
         // Open the target panel if it wasn't already open
         if (!isOpen) {
             panel.classList.add('open');
+            console.log(`Panel ${panelId} opened`);
         }
     }
 
@@ -1497,19 +1540,23 @@ class TypingTutor {
     }
 
     handleTouchClose(e) {
-        // Close settings panel when clicking outside
-        const settingsPanel = document.getElementById('settingsPanel');
-        if (settingsPanel.classList.contains('open') && 
-            !settingsPanel.contains(e.target) && 
-            !e.target.closest('#settingsBtn')) {
-            this.closePanel('settingsPanel');
+        // Check if click is on any navigation button
+        const navButtons = ['lessonsBtn', 'settingsBtn', 'progressBtn', 'profileBtn'];
+        const clickedNavButton = navButtons.find(btnId => e.target.closest(`#${btnId}`));
+        
+        // Close panels when clicking outside, but not when clicking nav buttons
+        if (!clickedNavButton) {
+            document.querySelectorAll('.panel.open').forEach(panel => {
+                if (!panel.contains(e.target)) {
+                    panel.classList.remove('open');
+                }
+            });
         }
         
-        // Close other panels similarly
-        document.querySelectorAll('.panel.open').forEach(panel => {
-            if (!panel.contains(e.target) && 
-                !e.target.closest(`[data-panel="${panel.id}"]`)) {
-                panel.classList.remove('open');
+        // Close modals when clicking outside
+        document.querySelectorAll('.modal.open').forEach(modal => {
+            if (e.target === modal) {
+                modal.classList.remove('open');
             }
         });
     }
@@ -1564,6 +1611,10 @@ class TypingTutor {
                     e.preventDefault();
                     this.toggleModal('shortcutsModal');
                     break;
+                case 'h':
+                    e.preventDefault();
+                    this.toggleNavbar();
+                    break;
             }
         }
     }
@@ -1578,15 +1629,25 @@ class TypingTutor {
     }
 
     zoomIn() {
-        this.settings.zoom = Math.min(1.5, this.settings.zoom + 0.1);
+        if (this.settings.zoomLocked) {
+            this.showZoomIndicator('Zoom is locked!');
+            return;
+        }
+        this.settings.zoom = Math.min(2, this.settings.zoom + 0.1);
         this.applySettings();
         this.saveSettings();
+        this.showZoomIndicator(`${Math.round(this.settings.zoom * 100)}%`);
     }
 
     zoomOut() {
-        this.settings.zoom = Math.max(0.8, this.settings.zoom - 0.1);
+        if (this.settings.zoomLocked) {
+            this.showZoomIndicator('Zoom is locked!');
+            return;
+        }
+        this.settings.zoom = Math.max(0.5, this.settings.zoom - 0.1);
         this.applySettings();
         this.saveSettings();
+        this.showZoomIndicator(`${Math.round(this.settings.zoom * 100)}%`);
     }
 
     closeAllPanels() {
@@ -1627,12 +1688,17 @@ class TypingTutor {
             e.preventDefault();
             
             if (e.touches.length === 2) {
+                if (this.settings.zoomLocked) {
+                    this.showZoomIndicator('Zoom is locked!');
+                    return;
+                }
                 const currentDistance = this.getDistance(e.touches[0], e.touches[1]);
                 scale = initialScale * (currentDistance / initialDistance);
-                scale = Math.max(0.8, Math.min(2, scale));
+                scale = Math.max(0.5, Math.min(2, scale));
                 
                 this.settings.zoom = scale;
                 this.applySettings();
+                this.showZoomIndicator(`${Math.round(this.settings.zoom * 100)}%`);
             } else if (e.touches.length === 1 && panning) {
                 pointX = e.touches[0].clientX - start.x;
                 pointY = e.touches[0].clientY - start.y;
@@ -1646,6 +1712,58 @@ class TypingTutor {
                 this.saveSettings();
             }
         });
+    }
+
+    toggleNavbar() {
+        const navbar = document.getElementById('navbar');
+        const toggleBtn = document.getElementById('navToggleBtn');
+        
+        this.navbarVisible = !this.navbarVisible;
+        
+        if (this.navbarVisible) {
+            navbar.classList.remove('hidden');
+            toggleBtn.textContent = '^';
+            toggleBtn.style.transform = 'rotate(0deg)';
+        } else {
+            navbar.classList.add('hidden');
+            toggleBtn.textContent = '^';
+            toggleBtn.style.transform = 'rotate(180deg)';
+        }
+    }
+
+    toggleZoomLock() {
+        this.settings.zoomLocked = !this.settings.zoomLocked;
+        const btn = document.getElementById('zoomLockBtn');
+        
+        if (this.settings.zoomLocked) {
+            btn.textContent = '🔒 Locked';
+            btn.classList.add('locked');
+            this.showZoomIndicator('Zoom locked!');
+        } else {
+            btn.textContent = '🔓 Unlock Zoom';
+            btn.classList.remove('locked');
+            this.showZoomIndicator('Zoom unlocked!');
+        }
+        
+        this.saveSettings();
+    }
+
+    showZoomIndicator(text) {
+        const indicator = document.getElementById('zoomIndicator');
+        const textElement = document.getElementById('zoomIndicatorText');
+        
+        textElement.textContent = text;
+        indicator.classList.add('show');
+        
+        // Clear any existing timeout
+        if (this.zoomIndicatorTimeout) {
+            clearTimeout(this.zoomIndicatorTimeout);
+        }
+        
+        // Hide after 1 second
+        this.zoomIndicatorTimeout = setTimeout(() => {
+            indicator.classList.remove('show');
+        }, 1000);
     }
 
     getDistance(touch1, touch2) {

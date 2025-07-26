@@ -8,8 +8,11 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
+    <!-- Navigation Toggle Button -->
+    <button id="navToggleBtn" class="nav-toggle" aria-label="Toggle Navigation">^</button>
+
     <!-- Main Navigation -->
-    <nav class="navbar">
+    <nav class="navbar" id="navbar">
         <div class="nav-brand">
             <h1>TypingClub</h1>
         </div>
@@ -309,8 +312,12 @@
                 </div>
                 <div class="setting-item">
                     <label for="zoomSlider">Zoom</label>
-                    <input type="range" id="zoomSlider" min="0.8" max="1.5" step="0.1" value="1">
+                    <input type="range" id="zoomSlider" min="0.5" max="2" step="0.1" value="1">
                     <span id="zoomValue">100%</span>
+                </div>
+                <div class="zoom-lock-controls">
+                    <button id="zoomLockBtn" class="zoom-lock-btn">🔓 Unlock Zoom</button>
+                    <span>Lock zoom to prevent accidental changes</span>
                 </div>
                 <div class="setting-item">
                     <label for="themeSelect">Theme</label>
@@ -538,9 +545,18 @@
                         <kbd>Ctrl</kbd> + <kbd>Z</kbd>
                         <span>Show Shortcuts</span>
                     </div>
+                    <div class="shortcut-item">
+                        <kbd>Ctrl</kbd> + <kbd>H</kbd>
+                        <span>Toggle Navigation</span>
+                    </div>
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- Zoom Indicator -->
+    <div id="zoomIndicator" class="zoom-indicator">
+        <span id="zoomIndicatorText">100%</span>
     </div>
 
     <!-- Audio Elements -->
