@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TypingClub Clone - Complete Typing Tutor</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Navigation Toggle Button -->
+    <button id="navToggleBtn" class="nav-toggle" aria-label="Toggle Navigation">^</button>
+
+    <!-- Main Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-brand">
+            <h1>TypingClub</h1>
+        </div>
+        <div class="nav-controls">
+            <button id="profileBtn" class="nav-btn" aria-label="Profile">Profile</button>
+            <button id="lessonsBtn" class="nav-btn" aria-label="Lessons">Lessons</button>
+            <button id="progressBtn" class="nav-btn" aria-label="Progress">Progress</button>
+            <button id="settingsBtn" class="nav-btn" aria-label="Settings">Settings</button>
+            <button id="fullscreenBtn" class="nav-btn" aria-label="Fullscreen">⛶</button>
+            <button id="shortcutsBtn" class="nav-btn" aria-label="Keyboard Shortcuts">?</button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Stats Panel -->
+        <div class="stats-panel">
+            <div class="stat-item">
+                <span class="stat-label">WPM</span>
+                <span id="wpmDisplay" class="stat-value">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Accuracy</span>
+                <span id="accuracyDisplay" class="stat-value">100%</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Characters</span>
+                <span id="charactersDisplay" class="stat-value">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Errors</span>
+                <span id="errorsDisplay" class="stat-value">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Time</span>
+                <span id="timeDisplay" class="stat-value">0:00</span>
+            </div>
+        </div>
+
+        <!-- Lesson Info -->
+        <div class="lesson-info">
+            <h2 id="lessonTitle">Select a Lesson</h2>
+            <p id="lessonDescription">Choose a lesson from the lessons panel to get started.</p>
+        </div>
+
+        <!-- Typing Area -->
+        <div class="typing-area">
+            <div id="typingText" class="typing-text" role="textbox" aria-label="Typing content">
+                <span class="char current">Select a lesson to start typing...</span>
+            </div>
+        </div>
+
+        <!-- Control Buttons -->
+        <div class="controls">
+            <button id="startBtn" class="control-btn primary" aria-label="Start Lesson">Start Lesson</button>
+            <button id="pauseBtn" class="control-btn" aria-label="Pause">Pause</button>
+            <button id="restartBtn" class="control-btn" aria-label="Restart">Restart</button>
+            <button id="prevLessonBtn" class="control-btn" aria-label="Previous Lesson">← Previous</button>
+            <button id="nextLessonBtn" class="control-btn" aria-label="Next Lesson">Next →</button>
+        </div>
+
+        <!-- Hand Guide -->
+        <div class="hand-guide">
+            <div class="hands-container">
+                <div class="hand left-hand">
+                    <div class="finger finger-1" data-finger="left-pinky"></div>
+                    <div class="finger finger-2" data-finger="left-ring"></div>
+                    <div class="finger finger-3" data-finger="left-middle"></div>
+                    <div class="finger finger-4" data-finger="left-index"></div>
+                    <div class="thumb" data-finger="left-thumb"></div>
+                </div>
+                <div class="hand right-hand">
+                    <div class="finger finger-1" data-finger="right-index"></div>
+                    <div class="finger finger-2" data-finger="right-middle"></div>
+                    <div class="finger finger-3" data-finger="right-ring"></div>
+                    <div class="finger finger-4" data-finger="right-pinky"></div>
+                    <div class="thumb" data-finger="right-thumb"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Virtual Keyboard -->
+        <div class="keyboard-container">
+            <div class="virtual-keyboard">
+                <!-- Number Row -->
+                <div class="keyboard-row">
+                    <div class="key" data-key="`" data-finger="left-pinky">
+                        <span class="key-main">`</span>
+                        <span class="key-shift">~</span>
+                    </div>
+                    <div class="key" data-key="1" data-finger="left-pinky">
+                        <span class="key-main">1</span>
+                        <span class="key-shift">!</span>
+                    </div>
+                    <div class="key" data-key="2" data-finger="left-ring">
+                        <span class="key-main">2</span>
+                        <span class="key-shift">@</span>
+                    </div>
+                    <div class="key" data-key="3" data-finger="left-middle">
+                        <span class="key-main">3</span>
+                        <span class="key-shift">#</span>
+                    </div>
+                    <div class="key" data-key="4" data-finger="left-index">
+                        <span class="key-main">4</span>
+                        <span class="key-shift">$</span>
+                    </div>
+                    <div class="key" data-key="5" data-finger="left-index">
+                        <span class="key-main">5</span>
+                        <span class="key-shift">%</span>
+                    </div>
+                    <div class="key" data-key="6" data-finger="right-index">
+                        <span class="key-main">6</span>
+                        <span class="key-shift">^</span>
+                    </div>
+                    <div class="key" data-key="7" data-finger="right-index">
+                        <span class="key-main">7</span>
+                        <span class="key-shift">&</span>
+                    </div>
+                    <div class="key" data-key="8" data-finger="right-middle">
+                        <span class="key-main">8</span>
+                        <span class="key-shift">*</span>
+                    </div>
+                    <div class="key" data-key="9" data-finger="right-ring">
+                        <span class="key-main">9</span>
+                        <span class="key-shift">(</span>
+                    </div>
+                    <div class="key" data-key="0" data-finger="right-pinky">
+                        <span class="key-main">0</span>
+                        <span class="key-shift">)</span>
+                    </div>
+                    <div class="key" data-key="-" data-finger="right-pinky">
+                        <span class="key-main">-</span>
+                        <span class="key-shift">_</span>
+                    </div>
+                    <div class="key" data-key="=" data-finger="right-pinky">
+                        <span class="key-main">=</span>
+                        <span class="key-shift">+</span>
+                    </div>
+                    <div class="key wide-key" data-key="Backspace" data-finger="right-pinky">Backspace</div>
+                </div>
+
+                <!-- Top Row -->
+                <div class="keyboard-row">
+                    <div class="key wide-key" data-key="Tab" data-finger="left-pinky">Tab</div>
+                    <div class="key" data-key="q" data-finger="left-pinky">Q</div>
+                    <div class="key" data-key="w" data-finger="left-ring">W</div>
+                    <div class="key" data-key="e" data-finger="left-middle">E</div>
+                    <div class="key" data-key="r" data-finger="left-index">R</div>
+                    <div class="key" data-key="t" data-finger="left-index">T</div>
+                    <div class="key" data-key="y" data-finger="right-index">Y</div>
+                    <div class="key" data-key="u" data-finger="right-index">U</div>
+                    <div class="key" data-key="i" data-finger="right-middle">I</div>
+                    <div class="key" data-key="o" data-finger="right-ring">O</div>
+                    <div class="key" data-key="p" data-finger="right-pinky">P</div>
+                    <div class="key" data-key="[" data-finger="right-pinky">
+                        <span class="key-main">[</span>
+                        <span class="key-shift">{</span>
+                    </div>
+                    <div class="key" data-key="]" data-finger="right-pinky">
+                        <span class="key-main">]</span>
+                        <span class="key-shift">}</span>
+                    </div>
+                    <div class="key" data-key="\\" data-finger="right-pinky">
+                        <span class="key-main">\\</span>
+                        <span class="key-shift">|</span>
+                    </div>
+                </div>
+
+                <!-- Home Row -->
+                <div class="keyboard-row">
+                    <div class="key wide-key" data-key="CapsLock" data-finger="left-pinky">Caps</div>
+                    <div class="key" data-key="a" data-finger="left-pinky">A</div>
+                    <div class="key" data-key="s" data-finger="left-ring">S</div>
+                    <div class="key" data-key="d" data-finger="left-middle">D</div>
+                    <div class="key" data-key="f" data-finger="left-index">F</div>
+                    <div class="key" data-key="g" data-finger="left-index">G</div>
+                    <div class="key" data-key="h" data-finger="right-index">H</div>
+                    <div class="key" data-key="j" data-finger="right-index">J</div>
+                    <div class="key" data-key="k" data-finger="right-middle">K</div>
+                    <div class="key" data-key="l" data-finger="right-ring">L</div>
+                    <div class="key" data-key=";" data-finger="right-pinky">
+                        <span class="key-main">;</span>
+                        <span class="key-shift">:</span>
+                    </div>
+                    <div class="key" data-key="'" data-finger="right-pinky">
+                        <span class="key-main">'</span>
+                        <span class="key-shift">"</span>
+                    </div>
+                    <div class="key extra-wide-key" data-key="Enter" data-finger="right-pinky">Enter</div>
+                </div>
+
+                <!-- Bottom Row -->
+                <div class="keyboard-row">
+                    <div class="key extra-wide-key" data-key="Shift" data-finger="left-pinky">Shift</div>
+                    <div class="key" data-key="z" data-finger="left-pinky">Z</div>
+                    <div class="key" data-key="x" data-finger="left-ring">X</div>
+                    <div class="key" data-key="c" data-finger="left-middle">C</div>
+                    <div class="key" data-key="v" data-finger="left-index">V</div>
+                    <div class="key" data-key="b" data-finger="left-index">B</div>
+                    <div class="key" data-key="n" data-finger="right-index">N</div>
+                    <div class="key" data-key="m" data-finger="right-index">M</div>
+                    <div class="key" data-key="," data-finger="right-middle">
+                        <span class="key-main">,</span>
+                        <span class="key-shift">&lt;</span>
+                    </div>
+                    <div class="key" data-key="." data-finger="right-ring">
+                        <span class="key-main">.</span>
+                        <span class="key-shift">&gt;</span>
+                    </div>
+                    <div class="key" data-key="/" data-finger="right-pinky">
+                        <span class="key-main">/</span>
+                        <span class="key-shift">?</span>
+                    </div>
+                    <div class="key extra-wide-key" data-key="Shift" data-finger="right-pinky">Shift</div>
+                </div>
+
+                <!-- Space Row -->
+                <div class="keyboard-row">
+                    <div class="key wide-key" data-key="Ctrl" data-finger="left-pinky">Ctrl</div>
+                    <div class="key wide-key" data-key="Alt" data-finger="left-thumb">Alt</div>
+                    <div class="key space-key" data-key=" " data-finger="thumb">Space</div>
+                    <div class="key wide-key" data-key="Alt" data-finger="right-thumb">Alt</div>
+                    <div class="key wide-key" data-key="Ctrl" data-finger="right-pinky">Ctrl</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Lessons Panel -->
+    <div id="lessonsPanel" class="panel">
+        <div class="panel-header">
+            <h3>Lessons</h3>
+            <button class="close-btn" aria-label="Close">&times;</button>
+        </div>
+        <div class="panel-content">
+            <div class="lesson-tabs">
+                <button class="tab-btn active" data-tab="built-in">Built-in Lessons</button>
+                <button class="tab-btn" data-tab="custom">My Lessons</button>
+            </div>
+            
+            <div class="tab-content active" data-tab="built-in">
+                <div class="lesson-groups">
+                    <div class="lesson-group">
+                        <h4>Beginner</h4>
+                        <div class="lesson-list" id="beginnerLessons"></div>
+                    </div>
+                    <div class="lesson-group">
+                        <h4>Home Row</h4>
+                        <div class="lesson-list" id="homeRowLessons"></div>
+                    </div>
+                    <div class="lesson-group">
+                        <h4>Top Row</h4>
+                        <div class="lesson-list" id="topRowLessons"></div>
+                    </div>
+                    <div class="lesson-group">
+                        <h4>Bottom Row</h4>
+                        <div class="lesson-list" id="bottomRowLessons"></div>
+                    </div>
+                    <div class="lesson-group">
+                        <h4>Numbers & Symbols</h4>
+                        <div class="lesson-list" id="numbersLessons"></div>
+                    </div>
+                    <div class="lesson-group">
+                        <h4>Advanced</h4>
+                        <div class="lesson-list" id="advancedLessons"></div>
+                    </div>
+                </div>
+                <div class="lesson-actions">
+                    <button id="resetLessonsBtn" class="btn danger">Reset Lessons</button>
+                </div>
+            </div>
+            
+            <div class="tab-content" data-tab="custom">
+                <div class="custom-lesson-form">
+                    <input type="text" id="customLessonTitle" placeholder="Lesson Title" maxlength="50">
+                    <textarea id="customLessonText" placeholder="Enter your custom text here..." rows="4"></textarea>
+                    <button id="addCustomLessonBtn" class="btn primary">Add Lesson</button>
+                </div>
+                <div id="customLessonsList" class="lesson-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Panel -->
+    <div id="settingsPanel" class="panel">
+        <div class="panel-header">
+            <h3>Settings</h3>
+            <button class="close-btn" aria-label="Close">&times;</button>
+        </div>
+        <div class="panel-content">
+            <div class="settings-group">
+                <h4>Display</h4>
+                <div class="setting-item">
+                    <label for="fontSizeSlider">Font Size</label>
+                    <input type="range" id="fontSizeSlider" min="12" max="24" value="16">
+                    <span id="fontSizeValue">16px</span>
+                </div>
+                <div class="setting-item">
+                    <label for="zoomSlider">Zoom</label>
+                    <input type="range" id="zoomSlider" min="0.5" max="2" step="0.1" value="1">
+                    <span id="zoomValue">100%</span>
+                </div>
+                <div class="zoom-lock-controls">
+                    <button id="zoomLockBtn" class="zoom-lock-btn">🔓 Unlock Zoom</button>
+                    <span>Lock zoom to prevent accidental changes</span>
+                </div>
+                <div class="setting-item">
+                    <label for="themeSelect">Theme</label>
+                    <select id="themeSelect">
+                        <option value="light">Light</option>
+                        <option value="dark">Dark</option>
+                        <option value="night">Night</option>
+                        <option value="colorful">Colorful</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <h4>Keyboard</h4>
+                <div class="setting-item">
+                    <label>
+                        <input type="checkbox" id="showKeyboardToggle" checked> Show Virtual Keyboard
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <label>
+                        <input type="checkbox" id="keyHighlightToggle" checked> Highlight Next Key
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <label for="keyboardThemeSelect">Keyboard Theme</label>
+                    <select id="keyboardThemeSelect">
+                        <option value="default">Default</option>
+                        <option value="blue">Blue</option>
+                        <option value="green">Green</option>
+                        <option value="purple">Purple</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <h4>Guidance</h4>
+                <div class="setting-item">
+                    <label>
+                        <input type="checkbox" id="fingerGuideToggle" checked> Show Finger Guide
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <label>
+                        <input type="checkbox" id="ghostTypingToggle"> Ghost Typing Mode
+                    </label>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <h4>Audio & Feedback</h4>
+                <div class="setting-item">
+                    <label>
+                        <input type="checkbox" id="soundToggle" checked> Sound Effects
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <label>
+                        <input type="checkbox" id="vibrationToggle" checked> Vibration on Error
+                    </label>
+                </div>
+            </div>
+
+            <div class="settings-actions">
+                <button id="resetSettingsBtn" class="btn danger">Reset Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress Panel -->
+    <div id="progressPanel" class="panel">
+        <div class="panel-header">
+            <h3>Your Progress</h3>
+            <button class="close-btn" aria-label="Close">&times;</button>
+        </div>
+        <div class="panel-content">
+            <div class="progress-overview">
+                <div class="stat-card">
+                    <h4>Total Lessons</h4>
+                    <span id="totalLessonsCount">0</span>
+                </div>
+                <div class="stat-card">
+                    <h4>Completed</h4>
+                    <span id="completedLessonsCount">0</span>
+                </div>
+                <div class="stat-card">
+                    <h4>Best WPM</h4>
+                    <span id="bestWpmStat">0</span>
+                </div>
+                <div class="stat-card">
+                    <h4>Avg Accuracy</h4>
+                    <span id="avgAccuracyStat">0%</span>
+                </div>
+            </div>
+            <div class="progress-charts">
+                <canvas id="progressChart" width="400" height="200"></canvas>
+            </div>
+            <div class="achievements-section">
+                <h4>Achievements</h4>
+                <div id="achievementsList" class="achievements-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Panel -->
+    <div id="profilePanel" class="panel">
+        <div class="panel-header">
+            <h3>Profile</h3>
+            <button class="close-btn" aria-label="Close">&times;</button>
+        </div>
+        <div class="panel-content">
+            <div class="current-profile">
+                <div class="profile-avatar">
+                    <span id="profileInitials">U</span>
+                </div>
+                <h4 id="profileName">Default User</h4>
+            </div>
+            
+            <div class="profile-form">
+                <input type="text" id="newProfileName" placeholder="Enter profile name" maxlength="20">
+                <button id="createProfileBtn" class="btn primary">Create Profile</button>
+            </div>
+            
+            <div class="profiles-list">
+                <h4>All Profiles</h4>
+                <div id="profilesList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Modal -->
+    <div id="summaryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Lesson Complete!</h3>
+                <button class="close-btn" aria-label="Close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="summary-stats">
+                    <div class="summary-stat">
+                        <span class="stat-label">Final WPM</span>
+                        <span id="summaryWpm" class="stat-value">0</span>
+                    </div>
+                    <div class="summary-stat">
+                        <span class="stat-label">Accuracy</span>
+                        <span id="summaryAccuracy" class="stat-value">0%</span>
+                    </div>
+                    <div class="summary-stat">
+                        <span class="stat-label">Errors</span>
+                        <span id="summaryErrors" class="stat-value">0</span>
+                    </div>
+                    <div class="summary-stat">
+                        <span class="stat-label">Time</span>
+                        <span id="summaryTime" class="stat-value">0:00</span>
+                    </div>
+                </div>
+                
+                <div class="summary-charts">
+                    <canvas id="wpmChart" width="300" height="150"></canvas>
+                </div>
+                
+                <div class="mistake-analysis">
+                    <h4>Most Difficult Characters</h4>
+                    <div id="mistakesList"></div>
+                </div>
+                
+                <div class="summary-actions">
+                    <button id="retryLessonBtn" class="btn">Retry Lesson</button>
+                    <button id="continueNextBtn" class="btn primary">Next Lesson</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Shortcuts Modal -->
+    <div id="shortcutsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Keyboard Shortcuts</h3>
+                <button class="close-btn" aria-label="Close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="shortcuts-list">
+                    <div class="shortcut-item">
+                        <kbd>Ctrl</kbd> + <kbd>S</kbd>
+                        <span>Start Lesson</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <kbd>Ctrl</kbd> + <kbd>R</kbd>
+                        <span>Restart Lesson</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <kbd>Ctrl</kbd> + <kbd>N</kbd>
+                        <span>Next Lesson</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <kbd>Ctrl</kbd> + <kbd>B</kbd>
+                        <span>Previous Lesson</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <kbd>Ctrl</kbd> + <kbd>L</kbd>
+                        <span>Open Lessons</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <kbd>Ctrl</kbd> + <kbd>P</kbd>
+                        <span>Open Settings</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <kbd>Ctrl</kbd> + <kbd>T</kbd>
+                        <span>Toggle Theme</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <kbd>Ctrl</kbd> + <kbd>=</kbd>
+                        <span>Zoom In</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <kbd>Ctrl</kbd> + <kbd>-</kbd>
+                        <span>Zoom Out</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <kbd>Ctrl</kbd> + <kbd>Esc</kbd>
+                        <span>Close Panel</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <kbd>Ctrl</kbd> + <kbd>Z</kbd>
+                        <span>Show Shortcuts</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <kbd>Ctrl</kbd> + <kbd>H</kbd>
+                        <span>Toggle Navigation</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Zoom Indicator -->
+    <div id="zoomIndicator" class="zoom-indicator">
+        <span id="zoomIndicatorText">100%</span>
+    </div>
+
+    <!-- Audio Elements -->
+    <audio id="keystrokeSound" preload="auto">
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmceBy2JzfPVfSsFJoHO8tuJNwgZZ7zv6J1NEAxQpu3wtmMeCSF7y+/ekyEFJHfH8N2QQAoTXrPp66hVFApGnt/yv2ceCAg" type="audio/wav">
+    </audio>
+    <audio id="errorSound" preload="auto">
+        <source src="data:audio/wav;base64,UklGRpQEAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YXAEAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmceBy2JzfPVfSsFJoHO8tuJNwgZZ7zv6J1NEAxQpu3wtmMeCSF7y+/ekyEFJHfH8N2QQAoTXrPp66hVFApGnt/yv2ceCAg" type="audio/wav">
+    </audio>
+
+    <script src="script.js"></script>
+</body>
+</html>
